@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Book - Book Dumps</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Upload a Book</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">← Back to Dashboard</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+                <li><a href="books.html">All Books List</a></li>
+                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Upload Book Form -->
+    <section id="upload-book">
+        <h2>Book Information</h2>
+        <form action="#" method="POST">
+            <label for="title">Book Title:</label><br>
+            <input type="text" id="title" name="title" required><br><br>
+
+            <label for="author">Book Author:</label><br>
+            <input type="text" id="author" name="author" required><br><br>
+
+            <label for="year">Year Published:</label><br>
+            <input type="number" id="year" name="year" min="0" required><br><br>
+
+            <label for="genre">Genre:</label><br>
+            <input type="text" id="genre" name="genre" required><br><br>
+
+            <label for="language">Language:</label><br>
+            <input type="text" id="language" name="language" required><br><br>
+
+            <label for="overview">Overview:</label><br>
+            <textarea id="overview" name="overview" rows="5" cols="40" placeholder="Write a short overview of the book..." required></textarea><br><br>
+
+            <label for="book-file">Upload File:</label>
+            <input type="file" id="book-file" name="file" required><br><br>
+
+            <button type="submit">Upload Book</button>
+        </form>
+    </section>
+
+</body>
+</html>

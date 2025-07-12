@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css">
+    <title>My Bookshelf - Book Dumps</title>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>My Bookshelf</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">← Back to Dashboard</a></li>
+                <li><a href="books.html">All Books List</a></li>
+                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="index.html">Logout</a></li>
+                
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Bookshelf Table -->
+    <section id="my-bookshelf">
+        <h2>Saved Books</h2>
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Year Published</th>
+                    <th>Genre</th>
+                    <th>Language</th>
+                    <th>Favorite</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>The Alchemist</td>
+                    <td>Paulo Coelho</td>
+                    <td>1988</td>
+                    <td>Adventure</td>
+                    <td>English</td>
+                    <td>⭐</td>
+                </tr>
+                <tr>
+                    <td>Dune</td>
+                    <td>Frank Herbert</td>
+                    <td>1965</td>
+                    <td>Science Fiction</td>
+                    <td>English</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Frankenstein</td>
+                    <td>Mary Shelley</td>
+                    <td>1818</td>
+                    <td>Horror</td>
+                    <td>English</td>
+                    <td>⭐</td>
+                </tr>
+                <!-- Add more bookshelf entries as needed -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Pagination Controls -->
+    <section id="pagination">
+        <button onclick="goToFirstPage()">First</button>
+        <button onclick="goToPreviousPage()">Back</button>
+        <button onclick="goToNextPage()">Next</button>
+        <button onclick="goToLastPage()">Last</button>
+    </section>
+
+    <!-- Pagination Placeholder Scripts -->
+    <script>
+        function goToFirstPage() {
+            alert("First page clicked");
+        }
+
+        function goToPreviousPage() {
+            alert("Previous page clicked");
+        }
+
+        function goToNextPage() {
+            alert("Next page clicked");
+        }
+
+        function goToLastPage() {
+            alert("Last page clicked");
+        }
+    </script>
+
+</body>
+</html>

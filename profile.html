@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css">
+    <title>User Profile - Book Dumps</title>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>User Profile</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">← Back to Dashboard</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+                <li><a href="books.html">All Books List</a></li>
+                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Profile Info -->
+    <section id="profile-info">
+        <h2>Profile Details</h2>
+        <p><strong>Name:</strong> [User Name]</p>
+        <img src="profile-placeholder.jpg" alt="Profile Picture" width="120" height="120">
+    </section>
+
+    <!-- Update Password -->
+    <section id="update-password">
+        <h2>Update Password</h2>
+        <form action="/update-password" method="POST">
+            <label for="current-password">Current Password:</label>
+            <input type="password" id="current-password" name="current_password" required><br>
+
+            <label for="new-password">New Password:</label>
+            <input type="password" id="new-password" name="new_password" required><br>
+
+            <button type="submit">Update Password</button>
+        </form>
+    </section>
+
+    <!-- Upload History Section -->
+    <section id="upload-history">
+        <h2>Upload History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Book Author</th>
+                    <th>Year Published</th>
+                    <th>Genre</th>
+                    <th>Language</th>
+                    <th>Date Uploaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample row -->
+                <tr>
+                    <td>The Great Novel</td>
+                    <td>Jane Doe</td>
+                    <td>2022</td>
+                    <td>Fiction</td>
+                    <td>English</td>
+                    <td>2025-05-20</td>
+                </tr>
+                <!-- More rows can be added here -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Download History Section -->
+    <section id="download-history">
+        <h2>Download History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Book Author</th>
+                    <th>Year Published</th>
+                    <th>Genre</th>
+                    <th>Language</th>
+                    <th>Date Downloaded</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample row -->
+                <tr>
+                    <td>Science of Time</td>
+                    <td>John Smith</td>
+                    <td>2019</td>
+                    <td>Science</td>
+                    <td>English</td>
+                    <td>2025-05-25</td>
+                </tr>
+                <!-- More rows can be added here -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Delete Account -->
+    <section id="delete-account">
+        <h2>Delete Account</h2>
+        <form action="/delete-account" method="POST">
+            <p>Warning: This action cannot be undone.</p>
+            <button type="submit">Delete My Account</button>
+        </form>
+    </section>
+
+</body>
+</html>

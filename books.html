@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css">
+    <title>All Books - Book Dumps</title>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>All Books</h1>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">← Back to Dashboard</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+   <!-- Book List Table -->
+    <section id="book-list">
+        <h2>Available Books</h2>
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Year Published</th>
+                    <th>Genre</th>
+                    <th>Language</th>
+                    <th>Favorite</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>The Hobbit</td>
+                    <td>J.R.R. Tolkien</td>
+                    <td>1937</td>
+                    <td>Fantasy</td>
+                    <td>English</td>
+                    <td>⭐</td>
+                </tr>
+                <tr>
+                    <td>1984</td>
+                    <td>George Orwell</td>
+                    <td>1949</td>
+                    <td>Dystopian</td>
+                    <td>English</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Pride and Prejudice</td>
+                    <td>Jane Austen</td>
+                    <td>1813</td>
+                    <td>Romance</td>
+                    <td>English</td>
+                    <td>⭐</td>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Pagination -->
+    <section id="pagination">
+        <button onclick="goToFirstPage()">First</button>
+        <button onclick="goToPreviousPage()">Back</button>
+        <button onclick="goToNextPage()">Next</button>
+        <button onclick="goToLastPage()">Last</button>
+    </section>
+
+    <!-- Pagination scripts (optional placeholder functions) -->
+    <script>
+        function goToFirstPage() {
+            alert("First page clicked");
+        }
+
+        function goToPreviousPage() {
+            alert("Previous page clicked");
+        }
+
+        function goToNextPage() {
+            alert("Next page clicked");
+        }
+
+        function goToLastPage() {
+            alert("Last page clicked");
+        }
+    </script>
+
+</body>
+</html>

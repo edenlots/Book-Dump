@@ -1,0 +1,104 @@
+/* Base styles for all pages */
+body {
+  font-family: system-ui, sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+header {
+  background-color: #4B6BFB; /* Tailwind's blue-600 */
+  color: white;
+  padding: 1rem;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+/* Navigation */
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* Section headers */
+section h2 {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: white;
+}
+
+th, td {
+  border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+  padding: 0.5rem;
+  text-align: left;
+}
+
+th {
+  background-color: #e5e7eb; /* Tailwind's gray-200 */
+}
+
+/* Pagination buttons */
+section#pagination button {
+  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #4B6BFB;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+section#pagination button:hover {
+  background-color: #3b5bda;
+}
+
+#pagination{
+  display: flex;
+  justify-content: center;
+  height: 30px;
+  margin-top: 30px;
+}
+
+#profile {
+  text-align: left;
+  float: left;
+}
+
+#search{
+  text-align: right;
+}
+#bookshelf{
+  text-align: center;
+}
+.searching, .searching2{
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ text-align: center;
+}
