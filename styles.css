@@ -102,3 +102,26 @@ section#pagination button:hover {
  align-items: center;
  text-align: center;
 }
+
+#homepage{
+  margin: 0;                    /* remove default margin */
+  display: grid;                /* grid container */
+  place-items: center;          /* shorthand for align-items + justify-items */
+  text-align: center;
+}
+
+#login{
+    margin: 0;                    /* remove default margin */
+    min-height:20vh;
+  display: grid;                /* grid container */
+  place-items: center;          /* shorthand for align-items + justify-items */
+  text-align: center;
+}
+
+#signup{
+      margin: 0;                    /* remove default margin */
+    min-height:20vh;
+  display: grid;                /* grid container */
+  place-items: center;          /* shorthand for align-items + justify-items */
+  text-align: center;
+}
