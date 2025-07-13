@@ -125,3 +125,11 @@ section#pagination button:hover {
   place-items: center;          /* shorthand for align-items + justify-items */
   text-align: center;
 }
+
+#upload-book{
+      margin: 0;                    /* remove default margin */
+    min-height:20vh;
+  display: grid;                /* grid container */
+  place-items: center;          /* shorthand for align-items + justify-items */
+  text-align: center;
+}

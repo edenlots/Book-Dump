@@ -29,20 +29,6 @@
         <img src="profile-placeholder.jpg" alt="Profile Picture" width="120" height="120">
     </section>
 
-    <!-- Update Password -->
-    <section id="update-password">
-        <h2>Update Password</h2>
-        <form action="/update-password" method="POST">
-            <label for="current-password">Current Password:</label>
-            <input type="password" id="current-password" name="current_password" required><br>
-
-            <label for="new-password">New Password:</label>
-            <input type="password" id="new-password" name="new_password" required><br>
-
-            <button type="submit">Update Password</button>
-        </form>
-    </section>
-
     <!-- Upload History Section -->
     <section id="upload-history">
         <h2>Upload History</h2>
@@ -99,6 +85,20 @@
                 <!-- More rows can be added here -->
             </tbody>
         </table>
+    </section>
+
+    <!-- Update Password -->
+    <section id="update-password">
+        <h2>Update Password</h2>
+        <form action="/update-password" method="POST">
+            <label for="current-password">Current Password:</label>
+            <input type="password" id="current-password" name="current_password" required><br>
+
+            <label for="new-password">New Password:</label>
+            <input type="password" id="new-password" name="new_password" required><br>
+
+            <button type="submit">Update Password</button>
+        </form>
     </section>
 
     <!-- Delete Account -->
