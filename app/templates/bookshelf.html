@@ -3,46 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css">
-    <title>Dashboard - Book Dumps</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>My Bookshelf - Book Dumps</title>
 </head>
 <body>
 
     <!-- Header -->
     <header>
-        <h1>Welcome to Book Dumps Dashboard</h1>
+        <h1>My Bookshelf</h1>
         <nav>
             <ul>
-                <li><a href="upload.html">Upload Book</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
+                <li><a href="dashboard.html">← Back to Dashboard</a></li>
                 <li><a href="books.html">All Books List</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="profile.html">User Profile</a></li>
                 <li><a href="index.html">Logout</a></li>
+                
             </ul>
         </nav>
     </header>
 
-    <!-- User Profile Section -->
-    <section id="profile">
-        <h2><a href="profile.html">User Profile</a></h2>
-        <p><strong>Name:</strong> [User Name]</p>
-        <p><strong>Email:</strong> [User Email]</p>
-    </section>
-
-    <!-- Book Search Section -->
-    <section id="search">
-        <h2>Search Books</h2>
-        <form action="/search" method="GET">
-            <label for="search-query">Type to search:</label>
-            <input type="text" id="search-query" name="q" required>
-            <button type="submit">Search</button>
-        </form>
-        <p><a href="books.html">All Books List</a></p>
-    </section>
-
-    <!-- My Bookshelf Section -->
-    <section id="bookshelf">
-        <h2>My Bookshelf</h2>
+    <!-- Bookshelf Table -->
+    <section id="my-bookshelf">
+        <h2>Saved Books</h2>
         <table border="1" cellpadding="8" cellspacing="0">
             <thead>
                 <tr>
@@ -84,7 +67,7 @@
         </table>
     </section>
 
-<!-- Pagination Controls -->
+    <!-- Pagination Controls -->
     <section id="pagination">
         <button onclick="goToFirstPage()">First</button>
         <button onclick="goToPreviousPage()">Back</button>

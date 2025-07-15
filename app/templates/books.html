@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css">
-    <title>My Bookshelf - Book Dumps</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>All Books - Book Dumps</title>
 </head>
 <body>
 
     <!-- Header -->
     <header>
-        <h1>My Bookshelf</h1>
+        <h1>All Books</h1>
         <nav>
             <ul>
                 <li><a href="dashboard.html">← Back to Dashboard</a></li>
-                <li><a href="books.html">All Books List</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
                 <li><a href="profile.html">User Profile</a></li>
                 <li><a href="index.html">Logout</a></li>
-                
             </ul>
         </nav>
     </header>
 
-    <!-- Bookshelf Table -->
-    <section id="my-bookshelf">
-        <h2>Saved Books</h2>
+   <!-- Book List Table -->
+    <section id="book-list">
+        <h2>Available Books</h2>
         <table border="1" cellpadding="8" cellspacing="0">
             <thead>
                 <tr>
@@ -39,35 +38,35 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>The Alchemist</td>
-                    <td>Paulo Coelho</td>
-                    <td>1988</td>
-                    <td>Adventure</td>
+                    <td>The Hobbit</td>
+                    <td>J.R.R. Tolkien</td>
+                    <td>1937</td>
+                    <td>Fantasy</td>
                     <td>English</td>
                     <td>⭐</td>
                 </tr>
                 <tr>
-                    <td>Dune</td>
-                    <td>Frank Herbert</td>
-                    <td>1965</td>
-                    <td>Science Fiction</td>
+                    <td>1984</td>
+                    <td>George Orwell</td>
+                    <td>1949</td>
+                    <td>Dystopian</td>
                     <td>English</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>Frankenstein</td>
-                    <td>Mary Shelley</td>
-                    <td>1818</td>
-                    <td>Horror</td>
+                    <td>Pride and Prejudice</td>
+                    <td>Jane Austen</td>
+                    <td>1813</td>
+                    <td>Romance</td>
                     <td>English</td>
                     <td>⭐</td>
                 </tr>
-                <!-- Add more bookshelf entries as needed -->
+                <!-- Add more rows as needed -->
             </tbody>
         </table>
     </section>
 
-    <!-- Pagination Controls -->
+    <!-- Pagination -->
     <section id="pagination">
         <button onclick="goToFirstPage()">First</button>
         <button onclick="goToPreviousPage()">Back</button>
@@ -75,7 +74,7 @@
         <button onclick="goToLastPage()">Last</button>
     </section>
 
-    <!-- Pagination Placeholder Scripts -->
+    <!-- Pagination scripts (optional placeholder functions) -->
     <script>
         function goToFirstPage() {
             alert("First page clicked");
