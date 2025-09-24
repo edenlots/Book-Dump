@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session
+from werkzeug.security import check_password_hash, generate_password_hash
 import hashlib
 import psycopg2.extras
 
@@ -10,8 +11,30 @@ def index():
     # books is a list of DictRows, Jinja can handle dict-style access
     return render_template("index.html")
 
-@bp.route("/login")
+@bp.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        conn = current_app.get_db()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            # check password hash
+            if check_password_hash(user["password"], password):
+                session["user_id"] = user["id"]   # store logged-in user ID
+                session["user_name"] = user["name"]
+                flash("Login successful!", "success")
+                return redirect(url_for("main.dashboard"))
+            else:
+                flash("Invalid password.", "danger")
+        else:
+            flash("Email not found.", "danger")
     return render_template("login.html")
 
 @bp.route("/signup", methods=["GET", "POST"])
@@ -22,17 +45,17 @@ def signup():
         password = request.form.get("password")
 
         # hash password (never store plain text passwords!)
-        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+        hashed_pw = generate_password_hash(password)
 
         # connect to DB
         conn = current_app.get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur = conn.cursor()
 
         # insert into users table (make sure this table exists!)
         try:
             cur.execute(
-                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
-                (name, email, hashed_pw)
+                "INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);",
+                (name, email, hashed_pw, "reader")
             )
             conn.commit()
             flash("Signup successful! Please log in.", "success")
@@ -47,12 +70,15 @@ def signup():
 
 @bp.route("/dashboard")
 def dashboard():
+        if "user_id" not in session:
+            flash("Please log in first.", "warning")
+            return redirect(url_for("main.login"))
         conn = current_app.get_db()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cur.execute("SELECT * FROM books ORDER BY title;")
         books = cur.fetchall()
         cur.close()
-        return render_template("dashboard.html", books=books)
+        return render_template("dashboard.html", name=session["user_name"])
 
 # REST endpoints -----------------------------
 @bp.route("/api/books", methods=["GET"])

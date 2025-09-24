@@ -16,7 +16,7 @@
 
     <!-- Signup Form -->
     <section id="signup">
-        <form action="/signup" method="POST">
+        <form action="{{ url_for('main.signup') }}" method="POST">
             <label for="signup-name">Name:</label>
             <input type="text" id="signup-name" name="name" required><br>
 

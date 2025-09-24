@@ -11,7 +11,7 @@ def create_app():
                 static_folder="static",
                 template_folder="templates")
     app.config.update(
-        SECRET_KEY     = os.getenv("SECRET_KEY", "dev"),
+        SECRET_KEY= os.getenv("SECRET_KEY", "dev"),
         DATABASE_URL=os.getenv("DATABASE_URL", "dbname=library user=postgres password=postgres host=localhost port=5432")
     )
 
