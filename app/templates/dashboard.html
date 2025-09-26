@@ -25,8 +25,8 @@
     <!-- User Profile Section -->
     <section id="profile">
         <h2><a href="profile.html">User Profile</a></h2>
-        <p><strong>Name:</strong> [User Name]</p>
-        <p><strong>Email:</strong> [User Email]</p>
+        <p><strong>Name:</strong> {{ username }}</p>
+        <p><strong>Email:</strong> {{ email }}</p>
     </section>
 
     <!-- Book Search Section -->
@@ -51,35 +51,22 @@
                     <th>Year Published</th>
                     <th>Genre</th>
                     <th>Language</th>
-                    <th>Favorite</th>
+                    <th>Overview</th>
+                    <th>Cover</th>
+                    <th>File</th>
                 </tr>
             </thead>
             <tbody>
+                {% for book in books %}
                 <tr>
-                    <td>The Alchemist</td>
-                    <td>Paulo Coelho</td>
-                    <td>1988</td>
-                    <td>Adventure</td>
-                    <td>English</td>
-                    <td>⭐</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>{{ book.genre }}</td>
+                    <td>{{ book.language }}</td>
+                    <td>{% if book.favorite %}⭐{% endif %}</td>
                 </tr>
-                <tr>
-                    <td>Dune</td>
-                    <td>Frank Herbert</td>
-                    <td>1965</td>
-                    <td>Science Fiction</td>
-                    <td>English</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Frankenstein</td>
-                    <td>Mary Shelley</td>
-                    <td>1818</td>
-                    <td>Horror</td>
-                    <td>English</td>
-                    <td>⭐</td>
-                </tr>
-                <!-- Add more bookshelf entries as needed -->
+                {% endfor %}
             </tbody>
         </table>
     </section>

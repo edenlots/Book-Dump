@@ -24,11 +24,13 @@ def login():
         user = cur.fetchone()
         cur.close()
 
+        print("DEBUG user row:", user)
+
         if user:
             # check password hash
-            if check_password_hash(user["password"], password):
-                session["user_id"] = user["id"]   # store logged-in user ID
-                session["user_name"] = user["name"]
+            if check_password_hash(user[3], password):
+                session["user_id"] = user[0]   # store logged-in user ID
+                session["user_name"] = user[1]
                 flash("Login successful!", "success")
                 return redirect(url_for("main.dashboard"))
             else:
@@ -54,7 +56,7 @@ def signup():
         # insert into users table (make sure this table exists!)
         try:
             cur.execute(
-                "INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);",
+                """INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);""",
                 (name, email, hashed_pw, "reader")
             )
             conn.commit()
@@ -64,7 +66,6 @@ def signup():
             flash("Error: " + str(e), "danger")
 
         cur.close()
-
         return redirect(url_for("main.index"))  # redirect after signup
     return render_template("signup.html")
 
@@ -73,12 +74,24 @@ def dashboard():
         if "user_id" not in session:
             flash("Please log in first.", "warning")
             return redirect(url_for("main.login"))
+        
         conn = current_app.get_db()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("SELECT * FROM books ORDER BY title;")
+
+        cur.execute("SELECT username, email FROM users WHERE id = %s;", (session["user_id"],))
+        user = cur.fetchone()
+
+        cur.execute("SELECT * FROM books ORDER BY title DESC LIMIT 10;")
         books = cur.fetchall()
+
         cur.close()
-        return render_template("dashboard.html", name=session["user_name"])
+        
+        return render_template(
+        "dashboard.html",
+        username=user["username"],
+        email=user["email"],
+        books=books
+    )
 
 # REST endpoints -----------------------------
 @bp.route("/api/books", methods=["GET"])
