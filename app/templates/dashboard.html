@@ -64,7 +64,9 @@
                     <td>{{ book.year }}</td>
                     <td>{{ book.genre }}</td>
                     <td>{{ book.language }}</td>
-                    <td>{% if book.favorite %}⭐{% endif %}</td>
+                    <td>{{ book.overview }}</td>
+                    <td>{{ book.cover }}</td>
+                    <td>{{ book.file }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
