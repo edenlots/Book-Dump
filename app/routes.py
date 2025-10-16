@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session
 from werkzeug.security import check_password_hash, generate_password_hash
-import hashlib
-import psycopg2.extras
+from werkzeug.utils import secure_filename
+import psycopg2.extras, os
 
 bp = Blueprint("main", __name__)
+ALLOWED_EXTENSIONS = {"pdf"}
 
-# HTML view ----------------------------------
+# HTML view ----------- The Routes include direct queries to PSQL using psycopg2
 @bp.route("/")
 def index():
     # books is a list of DictRows, Jinja can handle dict-style access
@@ -23,8 +24,6 @@ def login():
         cur.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
         cur.close()
-
-        print("DEBUG user row:", user)
 
         if user:
             # check password hash
@@ -93,7 +92,27 @@ def dashboard():
         books=books
     )
 
-# REST endpoints -----------------------------
+@bp.route("/books")
+def books():
+        if "user_id" not in session:
+            flash("Please log in first.", "warning")
+            return redirect(url_for("main.login"))
+        
+        conn = current_app.get_db()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cur.execute("SELECT * FROM books ORDER BY title DESC LIMIT 15;")
+        books = cur.fetchall()
+
+        cur.close()
+        
+        return render_template(
+        "books.html",
+        books=books
+    )
+
+
+# REST endpoints ------- This is when you want to use JS data fetch on frontend, and only routes HTML templates
 @bp.route("/api/books", methods=["GET"])
 def api_books():
     q = request.args.get("search", "")
@@ -103,12 +122,12 @@ def api_books():
 
     if q:
         cur.execute(
-            "SELECT id, title, author, year, genre, language FROM books WHERE title ILIKE %s;",
+            "SELECT title, author, year, genre, language FROM books WHERE title ILIKE %s;",
             (f"%{q}%",)
         )
     else:
         cur.execute(
-            "SELECT id, title, author, year, genre, language FROM books;"
+            "SELECT title, author, year, genre, language FROM books;"
         )
 
     rows = cur.fetchall()
