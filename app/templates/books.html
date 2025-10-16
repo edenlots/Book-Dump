@@ -17,14 +17,14 @@
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
                 <li><a href="profile.html">User Profile</a></li>
-                <li><a href="index.html">Logout</a></li>
+                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
    <!-- Book List Table -->
     <section id="book-list">
-        <h2>Available Books</h2>
+        <h2>All Books</h2>
         <table border="1" cellpadding="8" cellspacing="0">
             <thead>
                 <tr>
@@ -33,35 +33,24 @@
                     <th>Year Published</th>
                     <th>Genre</th>
                     <th>Language</th>
-                    <th>Favorite</th>
+                    <th>Overview</th>
+                    <th>Cover</th>
+                    <th>File</th>
                 </tr>
             </thead>
             <tbody>
+                {% for book in books %}
                 <tr>
-                    <td>The Hobbit</td>
-                    <td>J.R.R. Tolkien</td>
-                    <td>1937</td>
-                    <td>Fantasy</td>
-                    <td>English</td>
-                    <td>⭐</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>{{ book.genre }}</td>
+                    <td>{{ book.language }}</td>
+                    <td>{{ book.overview }}</td>
+                    <td>{{ book.cover }}</td>
+                    <td>{{ book.file }}</td>
                 </tr>
-                <tr>
-                    <td>1984</td>
-                    <td>George Orwell</td>
-                    <td>1949</td>
-                    <td>Dystopian</td>
-                    <td>English</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Pride and Prejudice</td>
-                    <td>Jane Austen</td>
-                    <td>1813</td>
-                    <td>Romance</td>
-                    <td>English</td>
-                    <td>⭐</td>
-                </tr>
-                <!-- Add more rows as needed -->
+                {% endfor %}
             </tbody>
         </table>
     </section>

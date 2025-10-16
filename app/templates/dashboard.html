@@ -15,7 +15,7 @@
             <ul>
                 <li><a href="upload.html">Upload Book</a></li>
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="books.html">All Books List</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
@@ -37,7 +37,7 @@
             <input type="text" id="search-query" name="q" required>
             <button type="submit">Search</button>
         </form>
-        <p><a href="books.html">All Books List</a></p>
+        <p><a href="{{ url_for('main.books') }}">All Books List</a></p>
     </section>
 
     <!-- My Bookshelf Section -->
