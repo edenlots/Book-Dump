@@ -14,10 +14,10 @@
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="books.html">All Books List</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
                 <li><a href="profile.html">User Profile</a></li>
-                <li><a href="index.html">Logout</a></li>
+                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -25,31 +25,42 @@
     <!-- Upload Book Form -->
     <section id="upload-book">
         <h2>Book Information</h2>
-        <form action="#" method="POST">
-            <label for="title">Book Title:</label><br>
-            <input type="text" id="title" name="title" required><br><br>
+         <form action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
+            <label>Title:</label><br>
+            <input type="text" name="title" required><br><br>
 
-            <label for="author">Book Author:</label><br>
-            <input type="text" id="author" name="author" required><br><br>
+            <label>Author:</label><br>
+            <input type="text" name="author" required><br><br>
 
             <label for="year">Year Published:</label><br>
-            <input type="number" id="year" name="year" min="0" required><br><br>
+            <input type="number" name="year" min="0" required><br><br>
 
             <label for="genre">Genre:</label><br>
-            <input type="text" id="genre" name="genre" required><br><br>
+            <input type="text" name="genre" required><br><br>
 
             <label for="language">Language:</label><br>
-            <input type="text" id="language" name="language" required><br><br>
+            <input type="text" name="language" required><br><br>
 
             <label for="overview">Overview:</label><br>
-            <textarea id="overview" name="overview" rows="5" cols="40" placeholder="Write a short overview of the book..." required></textarea><br><br>
+            <textarea name="overview" rows="5" cols="40" placeholder="Write a short overview of the book..." required></textarea><br><br>
 
-            <label for="book-file">Upload File:</label>
-            <input type="file" id="book-file" name="file" required><br><br>
+            <label>PDF File:</label><br>
+            <input type="file" name="file" accept=".pdf" required><br><br>
 
-            <button type="submit">Upload Book</button>
+            <button type="submit">Upload</button>
         </form>
-    </section>
 
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for msg in messages %}
+                    <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+
+    </section>
 </body>
 </html>

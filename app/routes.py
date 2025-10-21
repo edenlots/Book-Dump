@@ -6,6 +6,9 @@ import psycopg2.extras, os
 bp = Blueprint("main", __name__)
 ALLOWED_EXTENSIONS = {"pdf"}
 
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # HTML view ----------- The Routes include direct queries to PSQL using psycopg2
 @bp.route("/")
 def index():
@@ -106,12 +109,79 @@ def books():
 
         cur.close()
         
-        return render_template(
-        "books.html",
-        books=books
-    )
+        return render_template("books.html",books=books)
+
+@bp.route("/bookview/<int:book_id>")
+def bookview(book_id):
+    conn = current_app.get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id, title, author, file FROM books WHERE id = %s;", (book_id,))
+    book = cur.fetchone()
+    cur.close()
+
+    if not book:
+        return "Book not found", 404
+    return render_template("bookview.html",book=book)
 
 
+@bp.route("/uploads/<filename>")
+def view_file(filename):
+    uploads_path = os.path.join(current_app.root_path, "static/uploads")
+    return send_from_directory(uploads_path, filename)
+
+
+
+@bp.route("/upload", methods=["GET", "POST"])
+def upload():
+    if request.method == "POST":
+        title = request.form.get("title")
+        author = request.form.get("author")
+        year = request.form.get("year")
+        genre = request.form.get("genre")
+        language = request.form.get("language")
+        overview = request.form.get("overview")
+        file = request.files.get("file")
+
+        if not title or not author or not year or not genre or not language or not overview:
+            flash("Please complete required fields.")
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+
+            # Ensure uploads folder exists
+            upload_folder = os.path.join(current_app.root_path, "static/uploads")
+            os.makedirs(upload_folder, exist_ok=True)
+
+            file_path = os.path.join(upload_folder, filename)
+            file.save(file_path)
+
+            # Save to database (PostgreSQL)
+            conn = current_app.get_db()
+            cur = conn.cursor()
+
+            query = """
+                INSERT INTO books (title, author, year, genre, language, overview, file)
+                VALUES (%s, %s, %s,%s,%s,%s,%s);
+            """
+            book_object = (title, author, year, genre, language, overview, f"static/uploads/{filename}")
+            cur.execute(query, book_object)
+            print("Debug:", book_object)
+            conn.commit()
+
+            cur.close()
+            conn.close()
+
+            flash("Book uploaded successfully!")
+            return redirect(url_for("main.upload"))
+        else:
+            flash("Invalid file type. Please upload a PDF.")
+            return redirect(request.url)
+
+    return render_template("upload.html")
+
+
+'''
 # REST endpoints ------- This is when you want to use JS data fetch on frontend, and only routes HTML templates
 @bp.route("/api/books", methods=["GET"])
 def api_books():
@@ -134,3 +204,4 @@ def api_books():
     cur.close()
 
     return jsonify([dict(r) for r in rows])
+    '''

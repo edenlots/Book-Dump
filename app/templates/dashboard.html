@@ -13,7 +13,7 @@
         <h1>Welcome to Book Dumps Dashboard</h1>
         <nav>
             <ul>
-                <li><a href="upload.html">Upload Book</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="search.html">Advanced Search</a></li>
@@ -52,7 +52,6 @@
                     <th>Genre</th>
                     <th>Language</th>
                     <th>Overview</th>
-                    <th>Cover</th>
                     <th>File</th>
                 </tr>
             </thead>
@@ -65,7 +64,6 @@
                     <td>{{ book.genre }}</td>
                     <td>{{ book.language }}</td>
                     <td>{{ book.overview }}</td>
-                    <td>{{ book.cover }}</td>
                     <td>{{ book.file }}</td>
                 </tr>
                 {% endfor %}

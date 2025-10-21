@@ -17,7 +17,7 @@ class Book(db.Model):
     genre    = db.Column(db.String(50), index=True)
     language = db.Column(db.String(30))
     overview = db.Column(db.Text)
-    cover    = db.Column(db.String(200))    # path or URL
+    #cover    = db.Column(db.String(200))    # path or URL
     file     = db.Column(db.String(200))    # pdf path
 
 class Log(db.Model):

@@ -34,21 +34,24 @@
                     <th>Genre</th>
                     <th>Language</th>
                     <th>Overview</th>
-                    <th>Cover</th>
                     <th>File</th>
                 </tr>
             </thead>
             <tbody>
-                {% for book in books %}
+                {% for id, title, author, year, genre, language, overview, file_path in books %}
+                <!--id, title, author, year, genre, language, overview, file_path-->
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.year }}</td>
-                    <td>{{ book.genre }}</td>
-                    <td>{{ book.language }}</td>
-                    <td>{{ book.overview }}</td>
-                    <td>{{ book.cover }}</td>
-                    <td>{{ book.file }}</td>
+                    <td><a href="{{ url_for('main.bookview', book_id=id) }}">{{ title }}</a></td>
+                    <td>{{ author }}</td>
+                    <td>{{ year }}</td>
+                    <td>{{ genre }}</td>
+                    <td>{{ language }}</td>
+                    <td>{{ overview }}</td>
+                    <td>
+                        <a href="{{ url_for('main.view_file', filename=file_path.split('/')[-1]) }}" target="_blank">
+                            View PDF
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
