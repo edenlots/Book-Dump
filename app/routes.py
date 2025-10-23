@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import psycopg2.extras, os
@@ -130,7 +130,6 @@ def view_file(filename):
     return send_from_directory(uploads_path, filename)
 
 
-
 @bp.route("/upload", methods=["GET", "POST"])
 def upload():
     if request.method == "POST":
@@ -179,6 +178,71 @@ def upload():
             return redirect(request.url)
 
     return render_template("upload.html")
+
+@bp.route("/search")
+def search():
+    query = request.args.get("q", "").strip()
+    conn = current_app.get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, title, author, year, genre, language
+        FROM books
+        WHERE 
+            title ILIKE %s OR
+            author ILIKE %s OR
+            genre ILIKE %s OR
+            CAST(year AS TEXT) ILIKE %s OR
+            language ILIKE %s
+        ORDER BY title;
+    """, (f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"))
+    
+    results = cur.fetchall()
+    cur.close()
+
+    return render_template("search.html", query=query, results=results)
+
+@bp.route("/advanced", methods=["GET", "POST"])
+def advanced():
+    
+    results = []
+    if request.method == "POST":
+        title = request.form.get("title", "")
+        author = request.form.get("author", "")
+        year = request.form.get("year", "")
+        genre = request.form.get("genre", "")
+        language = request.form.get("language", "")
+
+        filters = []
+        values = []
+
+        if title:
+            filters.append("title ILIKE %s")
+            values.append(f"%{title}%")
+        if author:
+            filters.append("author ILIKE %s")
+            values.append(f"%{author}%")
+        if year:
+            filters.append("CAST(year AS TEXT) ILIKE %s")
+            values.append(f"%{year}%")
+        if genre:
+            filters.append("genre ILIKE %s")
+            values.append(f"%{genre}%")
+        if language:
+            filters.append("language ILIKE %s")
+            values.append(f"%{language}%")
+
+        query = "SELECT id, title, author, year, genre, language FROM books"
+        if filters:
+            query += " WHERE " + " AND ".join(filters)
+        query += " ORDER BY title;"
+
+        conn = current_app.get_db()
+        cur = conn.cursor()
+        cur.execute(query, tuple(values))
+        results = cur.fetchall()
+        cur.close()
+
+    return render_template("advanced.html", results=results)
 
 
 '''

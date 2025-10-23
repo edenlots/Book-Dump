@@ -15,12 +15,24 @@
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
                 <li><a href="profile.html">User Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
+
+    <!-- Book Search Section -->
+    <section id="search">
+        <h2>Search Books</h2>
+        <form action="{{ url_for('main.search') }}" method="get">
+            <input type="text" name="q" value="{{ query or '' }}" placeholder="🔍Search books..." />
+            <button type="submit">Search</button>
+        </form>
+
+        <p><a href="{{ url_for('main.books') }}">All Books List</a></p>
+    </section>
 
    <!-- Book List Table -->
     <section id="book-list">

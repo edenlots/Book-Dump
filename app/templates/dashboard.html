@@ -16,7 +16,7 @@
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="search.html">Advanced Search</a></li>
+                <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
@@ -32,11 +32,11 @@
     <!-- Book Search Section -->
     <section id="search">
         <h2>Search Books</h2>
-        <form action="/search" method="GET">
-            <label for="search-query">Type to search:</label>
-            <input type="text" id="search-query" name="q" required>
+        <form action="{{ url_for('main.search') }}" method="get">
+            <input type="text" name="q" value="{{ query or '' }}" placeholder="🔍Search books..." />
             <button type="submit">Search</button>
         </form>
+
         <p><a href="{{ url_for('main.books') }}">All Books List</a></p>
     </section>
 
@@ -55,16 +55,21 @@
                     <th>File</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for book in books %}
+           <tbody>
+                {% for id, title, author, year, genre, language, overview, file_path in books %}
+                <!--id, title, author, year, genre, language, overview, file_path-->
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.year }}</td>
-                    <td>{{ book.genre }}</td>
-                    <td>{{ book.language }}</td>
-                    <td>{{ book.overview }}</td>
-                    <td>{{ book.file }}</td>
+                    <td><a href="{{ url_for('main.bookview', book_id=id) }}">{{ title }}</a></td>
+                    <td>{{ author }}</td>
+                    <td>{{ year }}</td>
+                    <td>{{ genre }}</td>
+                    <td>{{ language }}</td>
+                    <td>{{ overview }}</td>
+                    <td>
+                        <a href="{{ url_for('main.view_file', filename=file_path.split('/')[-1]) }}" target="_blank">
+                            View PDF
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Book View</title>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Book View</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
+                <li><a href="bookshelf.html">My Bookshelf</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
+                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+<!-- book view -->
+<section>
+    <h2>📖 {{ book[1] }}</h2>
+  <p><strong>Author:</strong> {{ book[2] }}</p>
+
+  <!-- View button -->
+  <p>
+    <a href="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" target="_blank">
+      🔗 View PDF
+    </a>
+  </p>
+
+  <!-- Embedded PDF viewer -->
+  <iframe 
+    src="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" 
+    width="100%" 
+    height="600px">
+  </iframe>
+</section>
+
+    <!-- Pagination -->
+    <section id="pagination">
+        <button onclick="goToFirstPage()">First</button>
+        <button onclick="goToPreviousPage()">Back</button>
+        <button onclick="goToNextPage()">Next</button>
+        <button onclick="goToLastPage()">Last</button>
+    </section>
+
+    <!-- Pagination scripts (optional placeholder functions) -->
+    <script>
+        function goToFirstPage() {
+            alert("First page clicked");
+        }
+
+        function goToPreviousPage() {
+            alert("Previous page clicked");
+        }
+
+        function goToNextPage() {
+            alert("Next page clicked");
+        }
+
+        function goToLastPage() {
+            alert("Last page clicked");
+        }
+    </script>
+
+</body>
+</html>
