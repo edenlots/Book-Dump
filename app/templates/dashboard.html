@@ -24,7 +24,7 @@
 
     <!-- User Profile Section -->
     <section id="profile">
-        <h2><a href="profile.html">User Profile</a></h2>
+        <h2><a href="{{ url_for('main.profile') }}">User Profile</a></h2>
         <p><strong>Name:</strong> {{ username }}</p>
         <p><strong>Email:</strong> {{ email }}</p>
     </section>
