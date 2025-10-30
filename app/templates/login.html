@@ -7,6 +7,19 @@
     <title>Login - Book Dumps</title>
 </head>
 <body>
+<!-- Flash Message Display -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 
     <!-- Header -->
     <header>
@@ -26,6 +39,16 @@
             <button type="submit">Login</button>
         </form>
     </section>
+
+    <script>
+  // Automatically remove flash messages after fadeout
+    document.addEventListener("DOMContentLoaded", () => {
+    const flashes = document.querySelectorAll(".flash-message");
+        setTimeout(() => {
+            flashes.forEach(msg => msg.remove());
+            }, 6000); // 6 seconds total (3s visible + 3s fade)
+        });
+    </script>
 
 </body>
 </html>

@@ -17,7 +17,7 @@
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
@@ -58,6 +58,7 @@
             </ul>
         {% else %}
             <h2>🔍 Search Books</h2>
+            <p><strong>No books found for "{{ results }}".</strong></p>
             <p>Type a keyword (e.g. title, author, year, or genre) and press <strong>Advanced Search</strong>.</p>
         {% endif %}
 

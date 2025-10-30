@@ -6,6 +6,18 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
+        <!-- Flash Message Display -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-container">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 
     <!-- Header -->
     <header>
@@ -16,7 +28,7 @@
                 <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
-                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
@@ -50,17 +62,16 @@
             <button type="submit">Upload</button>
         </form>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                {% for msg in messages %}
-                    <li>{{ msg }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
-
     </section>
+    <script>
+  // Automatically remove flash messages after fadeout
+  document.addEventListener("DOMContentLoaded", () => {
+    const flashes = document.querySelectorAll(".flash-message");
+    setTimeout(() => {
+      flashes.forEach(msg => msg.remove());
+    }, 6000); // 6 seconds total (3s visible + 3s fade)
+  });
+</script>
+
 </body>
 </html>

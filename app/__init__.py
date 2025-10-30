@@ -4,7 +4,7 @@ import psycopg2
 import psycopg2.extras
 
 
-dotenv.load_dotenv()                       # pulls vars from .env
+dotenv.load_dotenv()                   
 
 def create_app():
     app = Flask(__name__,

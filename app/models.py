@@ -7,6 +7,7 @@ class User(db.Model):
     email    = db.Column(db.String(120), unique=True, nullable=False)
     password  = db.Column(db.String(128), nullable=False)
     role     = db.Column(db.String(20), default="reader")   # reader | admin
+    picture = db.Column(db.String(200))
     #created_at = db.column(db.DateTime, default=datetime.utcnow)
 
 class Book(db.Model):
@@ -17,8 +18,8 @@ class Book(db.Model):
     genre    = db.Column(db.String(50), index=True)
     language = db.Column(db.String(30))
     overview = db.Column(db.Text)
+    file     = db.Column(db.String(200))
     #cover    = db.Column(db.String(200))    # path or URL
-    file     = db.Column(db.String(200))    # pdf path
 
 class Log(db.Model):
     id        = db.Column(db.Integer, primary_key=True)

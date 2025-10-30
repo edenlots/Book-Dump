@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import psycopg2.extras, os
 
 bp = Blueprint("main", __name__)
-ALLOWED_EXTENSIONS = {"pdf"}
+ALLOWED_EXTENSIONS = {"pdf","png","jpg", "jpeg"}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -36,9 +36,9 @@ def login():
                 flash("Login successful!", "success")
                 return redirect(url_for("main.dashboard"))
             else:
-                flash("Invalid password.", "danger")
+                flash("Incorrect password.", "danger")
         else:
-            flash("Email not found.", "danger")
+            flash("Email or user not found.", "danger")
     return render_template("login.html")
 
 @bp.route("/signup", methods=["GET", "POST"])
@@ -71,6 +71,37 @@ def signup():
         return redirect(url_for("main.index"))  # redirect after signup
     return render_template("signup.html")
 
+@bp.route("/update_password", methods=["GET", "POST"])
+def update_password():
+    if request.method == "POST":
+        password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+
+        conn = current_app.get_db()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cur.execute("SELECT * FROM users WHERE id = %s;", (session["user_id"],))
+        user = cur.fetchone()
+
+        if user:
+            # check password hash
+            if check_password_hash(user[3], password):
+                hashed_new_password = generate_password_hash(new_password)
+                cur.execute(
+                """UPDATE users SET pw_hash = %s WHERE id = %s;""",
+                (hashed_new_password, session["user_id"],)
+                )
+                conn.commit()
+                cur.close()
+                flash("Update password successful!", "success")
+                return redirect(url_for("main.profile"))
+            else:
+                flash("Wrong password. Please use the correct active password.", "danger")
+        else:
+            flash("Invalid Account.", "danger")
+    return render_template("profile.html")
+
+
 @bp.route("/dashboard")
 def dashboard():
         if "user_id" not in session:
@@ -87,13 +118,67 @@ def dashboard():
         books = cur.fetchall()
 
         cur.close()
-        
+
         return render_template(
         "dashboard.html",
         username=user["username"],
         email=user["email"],
         books=books
     )
+
+@bp.route("/profile")
+def profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
+
+    conn = current_app.get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT username, email, picture FROM users WHERE id = %s;", (session["user_id"],))
+    user = cur.fetchone()
+    cur.close()
+
+    user_data = {"username":user[0], "email": user[1], "picture":user[2]} if user else None
+
+    return render_template("profile.html",user=user_data)
+
+
+@bp.route("/profile_picture", methods=["GET", "POST"])
+def profile_picture():
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
+    
+    if request.method == "POST":
+        picture = request.files.get("picture")
+  
+        if picture and allowed_file(picture.filename):
+            filename = secure_filename(picture.filename)
+
+            upload_folder=os.path.join(current_app.root_path, "static/profilepicture")
+            os.makedirs(upload_folder, exist_ok=True)
+            picture_path = os.path.join(upload_folder, filename)
+            picture.save(picture_path)
+
+            conn = current_app.get_db()
+            cur = conn.cursor()
+            query = """ UPDATE users SET picture = %s WHERE id=%s; """
+            picture_object = (f"/static/profilepicture/{filename}", (session["user_id"]))
+            cur.execute(query,picture_object)
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            flash("Profile picture addedd successfully!")
+            return redirect(url_for("main.profile_picture"))
+        else:
+            flash("Invalid file type. Please try again.")
+            return redirect(request.url)
+        
+    return render_template("profilepicture.html")
+
 
 @bp.route("/books")
 def books():
@@ -132,6 +217,9 @@ def view_file(filename):
 
 @bp.route("/upload", methods=["GET", "POST"])
 def upload():
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
     if request.method == "POST":
         title = request.form.get("title")
         author = request.form.get("author")
@@ -165,7 +253,7 @@ def upload():
             """
             book_object = (title, author, year, genre, language, overview, f"static/uploads/{filename}")
             cur.execute(query, book_object)
-            print("Debug:", book_object)
+            #print("Debug:", book_object)
             conn.commit()
 
             cur.close()
@@ -181,6 +269,9 @@ def upload():
 
 @bp.route("/search")
 def search():
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
     query = request.args.get("q", "").strip()
     conn = current_app.get_db()
     cur = conn.cursor()
@@ -203,7 +294,9 @@ def search():
 
 @bp.route("/advanced", methods=["GET", "POST"])
 def advanced():
-    
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
     results = []
     if request.method == "POST":
         title = request.form.get("title", "")
@@ -246,7 +339,7 @@ def advanced():
 
 
 '''
-# REST endpoints ------- This is when you want to use JS data fetch on frontend, and only routes HTML templates
+# REST endpoints ------- 
 @bp.route("/api/books", methods=["GET"])
 def api_books():
     q = request.args.get("search", "")

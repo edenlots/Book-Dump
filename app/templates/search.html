@@ -8,6 +8,7 @@
 </head>
 <body>
 
+    
     <!-- Header -->
     <header>
         <h1>Book Dumps Search</h1>
@@ -18,7 +19,7 @@
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="{{ url_for('main.advanced') }}">Avanced Search</a></li>
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="profile.html">User Profile</a></li>
+                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
