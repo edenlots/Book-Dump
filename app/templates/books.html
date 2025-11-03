@@ -49,52 +49,78 @@
                     <th>File</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for id, title, author, year, genre, language, overview, file_path in books %}
-                <!--id, title, author, year, genre, language, overview, file_path-->
+            <tbody id="booksBody">
+                {% for book in books %}
                 <tr>
-                    <td><a href="{{ url_for('main.bookview', book_id=id) }}">{{ title }}</a></td>
-                    <td>{{ author }}</td>
-                    <td>{{ year }}</td>
-                    <td>{{ genre }}</td>
-                    <td>{{ language }}</td>
-                    <td>{{ overview }}</td>
+                    <td><a href="{{ url_for('main.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.year }}</td>
+                    <td>{{ book.genre }}</td>
+                    <td>{{ book.language }}</td>
+                    <td>{{ book.overview }}</td>
                     <td>
-                        <a href="{{ url_for('main.view_file', filename=file_path.split('/')[-1]) }}" target="_blank">
+                        <a href="{{ url_for('main.view_file', filename=book.file) }}" target="_blank">
                             View PDF
                         </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
+
         </table>
     </section>
+
+    <br>
 
     <!-- Pagination -->
     <section id="pagination">
         <button onclick="goToFirstPage()">First</button>
-        <button onclick="goToPreviousPage()">Back</button>
-        <button onclick="goToNextPage()">Next</button>
+        <button id="PreviousPage">Back</button>
+        <span id="pageInfo"> </span>
+        <button id="NextPage">Next</button>
         <button onclick="goToLastPage()">Last</button>
     </section>
 
     <!-- Pagination scripts (optional placeholder functions) -->
     <script>
+
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        const tablebody = document.getElementById('booksBody');
+        const rows = Array.from(tablebody.getElementsByTagName('tr'));
+        const totalPages = Math.ceil(rows.length/rowsPerPage);
+
+        function showPage(page){
+            rows.forEach(row=>row.style.display='none');
+            const start =(page-1)*rowsPerPage;
+            const end = start + rowsPerPage;
+            rows.slice(start,end).forEach(row=>row.style.display='');
+            document.getElementById('pageInfo').textContent=`Page ${page} of ${totalPages}`;
+        }
+
         function goToFirstPage() {
             alert("First page clicked");
         }
 
-        function goToPreviousPage() {
-            alert("Previous page clicked");
-        }
+        document.getElementById('PreviousPage').addEventListener('click',()=> {
+            if (currentPage >1){
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
 
-        function goToNextPage() {
-            alert("Next page clicked");
-        }
+        document.getElementById('NextPage').addEventListener('click',() => {
+            if (currentPage<totalPages){
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
 
         function goToLastPage() {
             alert("Last page clicked");
         }
+
+        showPage(currentPage);
     </script>
 
 </body>

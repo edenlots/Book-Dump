@@ -114,7 +114,7 @@ def dashboard():
         cur.execute("SELECT username, email FROM users WHERE id = %s;", (session["user_id"],))
         user = cur.fetchone()
 
-        cur.execute("SELECT * FROM books ORDER BY title DESC LIMIT 10;")
+        cur.execute("SELECT * FROM books ORDER BY title ASC;")
         books = cur.fetchall()
 
         cur.close()
@@ -180,6 +180,7 @@ def profile_picture():
     return render_template("profilepicture.html")
 
 
+#API-STYLE
 @bp.route("/books")
 def books():
         if "user_id" not in session:
@@ -188,8 +189,7 @@ def books():
         
         conn = current_app.get_db()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-        cur.execute("SELECT * FROM books ORDER BY title DESC LIMIT 15;")
+        cur.execute("SELECT * FROM books ORDER BY title ASC;")
         books = cur.fetchall()
 
         cur.close()
