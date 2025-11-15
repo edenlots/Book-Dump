@@ -33,13 +33,21 @@ def login():
             if check_password_hash(user[3], password):
                 session["user_id"] = user[0]   # store logged-in user ID
                 session["user_name"] = user[1]
+                session["user_role"] = user[4]
                 flash("Login successful!", "success")
-                return redirect(url_for("main.dashboard"))
+                if session["user_role"] == 'admin':
+                    return redirect(url_for("main.admin_dashboard"))
+                else:
+                    return redirect(url_for("main.dashboard"))
             else:
                 flash("Incorrect password.", "danger")
         else:
             flash("Email or user not found.", "danger")
     return render_template("login.html")
+
+@bp.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
+    return render_template("adminlogin.html")
 
 @bp.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -243,17 +251,27 @@ def upload():
             file_path = os.path.join(upload_folder, filename)
             file.save(file_path)
 
-            # Save to database (PostgreSQL)
             conn = current_app.get_db()
             cur = conn.cursor()
 
-            query = """
+            add_book = """
                 INSERT INTO books (title, author, year, genre, language, overview, file)
-                VALUES (%s, %s, %s,%s,%s,%s,%s);
+                VALUES (%s, %s, %s,%s,%s,%s,%s)
+                RETURNING id;
             """
             book_object = (title, author, year, genre, language, overview, f"static/uploads/{filename}")
-            cur.execute(query, book_object)
+            cur.execute(add_book, book_object)
+
+            book_id=cur.fetchone()[0]
             #print("Debug:", book_object)
+
+            cur.execute("""
+                    INSERT INTO logs (user_id,book_id,action,timestamp)
+                    VALUES (%s,%s,%s,CURRENT_TIMESTAMP);
+            """,
+            (session.get('user_id'),book_id,'uploaded')
+            )
+
             conn.commit()
 
             cur.close()
