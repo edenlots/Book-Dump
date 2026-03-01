@@ -67,7 +67,7 @@ def signup():
         try:
             cur.execute(
                 """INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);""",
-                (name, email, hashed_pw, "reader")
+                (name, email, hashed_pw, "user")
             )
             conn.commit()
             flash("Signup successful! Please log in.", "success")
@@ -126,6 +126,7 @@ def dashboard():
         books = cur.fetchall()
 
         cur.close()
+        conn.close()
 
         return render_template(
         "dashboard.html",
@@ -228,6 +229,13 @@ def upload():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
         return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT username, email FROM users WHERE id = %s;", (session["user_id"],))
+    user = cur.fetchone()
+    cur.close()
+
     if request.method == "POST":
         title = request.form.get("title")
         author = request.form.get("author")
@@ -250,8 +258,7 @@ def upload():
 
             file_path = os.path.join(upload_folder, filename)
             file.save(file_path)
-
-            conn = current_app.get_db()
+            
             cur = conn.cursor()
 
             add_book = """
@@ -263,7 +270,6 @@ def upload():
             cur.execute(add_book, book_object)
 
             book_id=cur.fetchone()[0]
-            #print("Debug:", book_object)
 
             cur.execute("""
                     INSERT INTO logs (user_id,book_id,action,timestamp)
@@ -283,7 +289,8 @@ def upload():
             flash("Invalid file type. Please upload a PDF.")
             return redirect(request.url)
 
-    return render_template("upload.html")
+    return render_template("upload.html", username=user["username"],
+        email=user["email"])
 
 @bp.route("/search")
 def search():
