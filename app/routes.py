@@ -1,10 +1,13 @@
 from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-import psycopg2.extras, os
+from pathlib import Path
+import dotenv
+
+from .queries import UserQueries, BookQueries, LogQueries
 
 bp = Blueprint("main", __name__)
-ALLOWED_EXTENSIONS = {"pdf","png","jpg", "jpeg"}
+ALLOWED_EXTENSIONS = set(dotenv.dotenv_values().get("ALLOWED_EXTENSIONS", "pdf,png,jpg,jpeg").split(","))
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -22,11 +25,7 @@ def login():
         password = request.form.get("password")
 
         conn = current_app.get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cur.fetchone()
-        cur.close()
+        user = UserQueries.get_user_by_email(conn, email)
 
         if user:
             # check password hash
@@ -61,21 +60,13 @@ def signup():
 
         # connect to DB
         conn = current_app.get_db()
-        cur = conn.cursor()
+        success, error = UserQueries.create_user(conn, name, email, hashed_pw)
 
-        # insert into users table (make sure this table exists!)
-        try:
-            cur.execute(
-                """INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);""",
-                (name, email, hashed_pw, "user")
-            )
-            conn.commit()
+        if success:
             flash("Signup successful! Please log in.", "success")
-        except Exception as e:
-            conn.rollback()
-            flash("Error: " + str(e), "danger")
+        else:
+            flash("Error: " + error, "danger")
 
-        cur.close()
         return redirect(url_for("main.index"))  # redirect after signup
     return render_template("signup.html")
 
@@ -86,23 +77,19 @@ def update_password():
         new_password = request.form.get("new_password")
 
         conn = current_app.get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-        cur.execute("SELECT * FROM users WHERE id = %s;", (session["user_id"],))
-        user = cur.fetchone()
+        user = UserQueries.get_user_by_id(conn, session["user_id"])
 
         if user:
             # check password hash
-            if check_password_hash(user[3], password):
+            if check_password_hash(user[3] if isinstance(user, tuple) else user['pw_hash'], password):
                 hashed_new_password = generate_password_hash(new_password)
-                cur.execute(
-                """UPDATE users SET pw_hash = %s WHERE id = %s;""",
-                (hashed_new_password, session["user_id"],)
-                )
-                conn.commit()
-                cur.close()
-                flash("Update password successful!", "success")
-                return redirect(url_for("main.profile"))
+                success = UserQueries.update_password(conn, session["user_id"], hashed_new_password)
+                
+                if success:
+                    flash("Update password successful!", "success")
+                    return redirect(url_for("main.profile"))
+                else:
+                    flash("Error updating password.", "danger")
             else:
                 flash("Wrong password. Please use the correct active password.", "danger")
         else:
@@ -112,23 +99,15 @@ def update_password():
 
 @bp.route("/dashboard")
 def dashboard():
-        if "user_id" not in session:
-            flash("Please log in first.", "warning")
-            return redirect(url_for("main.login"))
-        
-        conn = current_app.get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    user = UserQueries.get_user_by_id(conn, session["user_id"])
+    books = BookQueries.get_all_books(conn)
 
-        cur.execute("SELECT username, email FROM users WHERE id = %s;", (session["user_id"],))
-        user = cur.fetchone()
-
-        cur.execute("SELECT * FROM books ORDER BY title ASC;")
-        books = cur.fetchall()
-
-        cur.close()
-        conn.close()
-
-        return render_template(
+    return render_template(
         "dashboard.html",
         username=user["username"],
         email=user["email"],
@@ -143,14 +122,11 @@ def profile():
         return redirect(url_for("main.login"))
 
     conn = current_app.get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT username, email, picture FROM users WHERE id = %s;", (session["user_id"],))
-    user = cur.fetchone()
-    cur.close()
+    user = UserQueries.get_user_profile(conn, user_id)
 
-    user_data = {"username":user[0], "email": user[1], "picture":user[2]} if user else None
+    user_data = {"username": user[0], "email": user[1], "picture": user[2]} if user else None
 
-    return render_template("profile.html",user=user_data)
+    return render_template("profile.html", user=user_data)
 
 
 @bp.route("/profile_picture", methods=["GET", "POST"])
@@ -165,22 +141,20 @@ def profile_picture():
         if picture and allowed_file(picture.filename):
             filename = secure_filename(picture.filename)
 
-            upload_folder=os.path.join(current_app.root_path, "static/profilepicture")
-            os.makedirs(upload_folder, exist_ok=True)
-            picture_path = os.path.join(upload_folder, filename)
+            upload_folder = Path(current_app.root_path) / "static" / "profilepicture"
+            upload_folder.mkdir(parents=True, exist_ok=True)
+            picture_path = upload_folder / filename
             picture.save(picture_path)
 
             conn = current_app.get_db()
-            cur = conn.cursor()
-            query = """ UPDATE users SET picture = %s WHERE id=%s; """
-            picture_object = (f"/static/profilepicture/{filename}", (session["user_id"]))
-            cur.execute(query,picture_object)
+            picture_url = f"/static/profilepicture/{filename}"
+            success = UserQueries.update_profile_picture(conn, session["user_id"], picture_url)
 
-            conn.commit()
-            cur.close()
-            conn.close()
-
-            flash("Profile picture addedd successfully!")
+            if success:
+                flash("Profile picture added successfully!")
+            else:
+                flash("Error updating profile picture.")
+            
             return redirect(url_for("main.profile_picture"))
         else:
             flash("Invalid file type. Please try again.")
@@ -192,35 +166,28 @@ def profile_picture():
 #API-STYLE
 @bp.route("/books")
 def books():
-        if "user_id" not in session:
-            flash("Please log in first.", "warning")
-            return redirect(url_for("main.login"))
-        
-        conn = current_app.get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("SELECT * FROM books ORDER BY title ASC;")
-        books = cur.fetchall()
-
-        cur.close()
-        
-        return render_template("books.html",books=books)
+    if "user_id" not in session:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    books_data = BookQueries.get_all_books(conn)
+    
+    return render_template("books.html", books=books_data)
 
 @bp.route("/bookview/<int:book_id>")
 def bookview(book_id):
     conn = current_app.get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT id, title, author, file FROM books WHERE id = %s;", (book_id,))
-    book = cur.fetchone()
-    cur.close()
+    book = BookQueries.get_book_by_id(conn, book_id)
 
     if not book:
         return "Book not found", 404
-    return render_template("bookview.html",book=book)
+    return render_template("bookview.html", book=book)
 
 
 @bp.route("/uploads/<filename>")
 def view_file(filename):
-    uploads_path = os.path.join(current_app.root_path, "static/uploads")
+    uploads_path = Path(current_app.root_path) / "static" / "uploads"
     return send_from_directory(uploads_path, filename)
 
 
@@ -231,10 +198,7 @@ def upload():
         return redirect(url_for("main.login"))
     
     conn = current_app.get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT username, email FROM users WHERE id = %s;", (session["user_id"],))
-    user = cur.fetchone()
-    cur.close()
+    user = UserQueries.get_user_by_id(conn, session["user_id"])
 
     if request.method == "POST":
         title = request.form.get("title")
@@ -253,37 +217,25 @@ def upload():
             filename = secure_filename(file.filename)
 
             # Ensure uploads folder exists
-            upload_folder = os.path.join(current_app.root_path, "static/uploads")
-            os.makedirs(upload_folder, exist_ok=True)
+            upload_folder = Path(current_app.root_path) / "static" / "uploads"
+            upload_folder.mkdir(parents=True, exist_ok=True)
 
-            file_path = os.path.join(upload_folder, filename)
+            file_path = upload_folder / filename
             file.save(file_path)
             
-            cur = conn.cursor()
-
-            add_book = """
-                INSERT INTO books (title, author, year, genre, language, overview, file)
-                VALUES (%s, %s, %s,%s,%s,%s,%s)
-                RETURNING id;
-            """
-            book_object = (title, author, year, genre, language, overview, f"static/uploads/{filename}")
-            cur.execute(add_book, book_object)
-
-            book_id=cur.fetchone()[0]
-
-            cur.execute("""
-                    INSERT INTO logs (user_id,book_id,action,timestamp)
-                    VALUES (%s,%s,%s,CURRENT_TIMESTAMP);
-            """,
-            (session.get('user_id'),book_id,'uploaded')
+            # Add book to database
+            success, book_id, error = BookQueries.add_book(
+                conn, title, author, year, genre, language, overview, 
+                f"static/uploads/{filename}"
             )
 
-            conn.commit()
-
-            cur.close()
-            conn.close()
-
-            flash("Book uploaded successfully!")
+            if success:
+                # Add log entry
+                LogQueries.add_log(conn, session.get('user_id'), book_id, 'uploaded')
+                flash("Book uploaded successfully!")
+            else:
+                flash(f"Error uploading book: {error}")
+            
             return redirect(url_for("main.upload"))
         else:
             flash("Invalid file type. Please upload a PDF.")
@@ -297,23 +249,10 @@ def search():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
         return redirect(url_for("main.login"))
+    
     query = request.args.get("q", "").strip()
     conn = current_app.get_db()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT id, title, author, year, genre, language
-        FROM books
-        WHERE 
-            title ILIKE %s OR
-            author ILIKE %s OR
-            genre ILIKE %s OR
-            CAST(year AS TEXT) ILIKE %s OR
-            language ILIKE %s
-        ORDER BY title;
-    """, (f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"))
-    
-    results = cur.fetchall()
-    cur.close()
+    results = BookQueries.search_books(conn, query)
 
     return render_template("search.html", query=query, results=results)
 
@@ -322,6 +261,7 @@ def advanced():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
         return redirect(url_for("main.login"))
+    
     results = []
     if request.method == "POST":
         title = request.form.get("title", "")
@@ -330,35 +270,8 @@ def advanced():
         genre = request.form.get("genre", "")
         language = request.form.get("language", "")
 
-        filters = []
-        values = []
-
-        if title:
-            filters.append("title ILIKE %s")
-            values.append(f"%{title}%")
-        if author:
-            filters.append("author ILIKE %s")
-            values.append(f"%{author}%")
-        if year:
-            filters.append("CAST(year AS TEXT) ILIKE %s")
-            values.append(f"%{year}%")
-        if genre:
-            filters.append("genre ILIKE %s")
-            values.append(f"%{genre}%")
-        if language:
-            filters.append("language ILIKE %s")
-            values.append(f"%{language}%")
-
-        query = "SELECT id, title, author, year, genre, language FROM books"
-        if filters:
-            query += " WHERE " + " AND ".join(filters)
-        query += " ORDER BY title;"
-
         conn = current_app.get_db()
-        cur = conn.cursor()
-        cur.execute(query, tuple(values))
-        results = cur.fetchall()
-        cur.close()
+        results = BookQueries.advanced_search(conn, title, author, year, genre, language)
 
     return render_template("advanced.html", results=results)
 

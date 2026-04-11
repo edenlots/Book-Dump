@@ -1,8 +1,7 @@
 from flask import Flask, g
-import os, pathlib, dotenv
+import pathlib, dotenv
 import psycopg2
 import psycopg2.extras
-
 
 dotenv.load_dotenv()                   
 
@@ -11,8 +10,8 @@ def create_app():
                 static_folder="static",
                 template_folder="templates")
     app.config.update(
-        SECRET_KEY= os.getenv("SECRET_KEY", "dev"),
-        DATABASE_URL=os.getenv("DATABASE_URL")
+        SECRET_KEY=dotenv.dotenv_values().get("SECRET_KEY", "dev"),
+        DATABASE_URL=dotenv.dotenv_values().get("DATABASE_URL")
     )
 
 # --- PostgreSQL connection helper ---
