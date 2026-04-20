@@ -8,140 +8,183 @@
 </head>
 <body>
     <!-- Flash Message Display -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-container">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          {{ message }}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>User Profile</h1>
+        <h1>👤 My Profile</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Profile Info -->
+    <div class="container-lg">
+        <!-- Profile Details & Password Update - Side by Side -->
+        <div class="row mt-4">
+            <!-- Profile Info Card -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Account Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            {% if user.picture %}
+                                <img src="{{ user.picture }}" alt="Profile Picture" style="width: 140px; height: 140px; border-radius: 8px; object-fit: cover; border: 3px solid var(--primary-color);">
+                            {% else %}
+                                <div style="width: 140px; height: 140px; border-radius: 8px; background-color: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto;">📷</div>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('main.profile_picture') }}" class="btn btn-secondary btn-block mb-3">Change Profile Picture</a>
+                        
+                        <hr>
+                        
+                        <p><strong>Name:</strong></p>
+                        <p style="margin-bottom: 1rem;">{{ user.username }}</p>
+                        
+                        <p><strong>Email:</strong></p>
+                        <p>{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
 
-    <section id="profile-info">
-        <h2>Profile Details</h2>
-        {% if user.picture %}
-            <img src="{{ user.picture }}" alt="Profile Picture" width="120" height="120">
-        {% else %}
-            <p>No Profile Image available</p>
-        {% endif %}
-        <a href="{{ url_for('main.profile_picture') }}">Upload Profile Picture</a>  
-        <p><strong>Name:</strong> {{ username }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-        
-    </section>
+            <!-- Security Card -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Security</h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="margin-bottom: 1.5rem; color: var(--text-muted);">
+                            Keep your account secure by maintaining a strong password.
+                        </p>
+                        <a href="{{ url_for('main.update_password') }}" class="btn btn-primary btn-block">🔐 Change Password</a>
+                        
+                        <hr style="margin: 1.5rem 0;">
+                        
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">
+                            <strong>Last password change:</strong><br>
+                            Never (change now for security)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <!-- Update Password -->
-    <section id="update-password">
-        <h2>Update Password</h2>
-        <form action="{{ url_for('main.update_password') }}" method="POST">
-            <label for="current-password">Current Password:</label>
-            <input type="password" id="current-password" name="current_password" required><br>
+        <!-- Upload History Section -->
+        <section id="upload-history" class="mt-4">
+            <h2>📤 Upload History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                            <th>Language</th>
+                            <th>Date Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
+                                No uploads yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-            <label for="new-password">New Password:</label>
-            <input type="password" id="new-password" name="new_password" required><br>
+        <!-- Download History Section -->
+        <section id="download-history" class="mt-4">
+            <h2>📥 Download History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                            <th>Language</th>
+                            <th>Date Downloaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
+                                No downloads yet. <a href="{{ url_for('main.books') }}">Browse books</a>!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-            <button type="submit">Update Password</button>
-        </form>
-
- </section>
-
-
-    <!-- Upload History Section -->
-    <section id="upload-history">
-        <h2>Upload History</h2>
-        <table class="table-history">
-            <thead>
-                <tr>
-                    <th>Book Title</th>
-                    <th>Book Author</th>
-                    <th>Year Published</th>
-                    <th>Genre</th>
-                    <th>Language</th>
-                    <th>Date Uploaded</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Sample row -->
-                <tr>
-                    <td>The Great Novel</td>
-                    <td>Jane Doe</td>
-                    <td>2022</td>
-                    <td>Fiction</td>
-                    <td>English</td>
-                    <td>2025-05-20</td>
-                </tr>
-                <!-- More rows can be added here -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Download History Section -->
-    <section id="download-history">
-        <h2>Download History</h2>
-        <table class="table-history">
-            <thead>
-                <tr>
-                    <th>Book Title</th>
-                    <th>Book Author</th>
-                    <th>Year Published</th>
-                    <th>Genre</th>
-                    <th>Language</th>
-                    <th>Date Downloaded</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Sample row -->
-                <tr>
-                    <td>Science of Time</td>
-                    <td>John Smith</td>
-                    <td>2019</td>
-                    <td>Science</td>
-                    <td>English</td>
-                    <td>2025-05-25</td>
-                </tr>
-                <!-- More rows can be added here -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Delete Account -->
-    <section id="delete-account">
-        <h2>Delete Account</h2>
-        <form action="/delete-account" method="POST">
-            <p>Warning: This action cannot be undone.</p>
-            <button type="submit">Delete My Account</button>
-        </form>
-    </section>
+        <!-- Danger Zone -->
+        <section id="delete-account" class="mt-4">
+            <div class="card" style="border-left: 4px solid var(--danger-color);">
+                <div class="card-header" style="background-color: rgba(239, 68, 68, 0.1);">
+                    <h2>⚠️ Danger Zone</h2>
+                </div>
+                <div class="card-body">
+                    <h3 style="color: var(--danger-color);">Delete My Account</h3>
+                    <p class="text-muted">
+                        Once you delete your account, there is no going back. Please be certain.
+                    </p>
+                    <button class="btn btn-danger" onclick="if(confirm('Are you absolutely sure? This action cannot be undone!')) { alert('Delete account functionality coming soon'); }">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <script>
-  // Automatically remove flash messages after fadeout
-    document.addEventListener("DOMContentLoaded", () => {
-    const flashes = document.querySelectorAll(".flash-message");
-        setTimeout(() => {
-            flashes.forEach(msg => msg.remove());
-            }, 6000); // 6 seconds total (3s visible + 3s fade)
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
         });
     </script>
 
-    </body>
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
 
+        hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+</body>
 </html>

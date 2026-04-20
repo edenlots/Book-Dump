@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
-    <title>Login - Book Dumps</title>
+    <title>Admin Login - Book Dumps</title>
 </head>
 <body>
 <!-- Flash Message Display -->
@@ -20,29 +20,33 @@
   {% endif %}
 {% endwith %}
 
-
     <!-- Header -->
     <header>
-        <h1>Login to Book Dumps</h1>
+        <h1>Admin Portal - Book Dumps</h1>
         <p><a href="{{ url_for('main.index') }}">← Back to Home</a></p>
     </header>
 
-    <!-- Login Section -->
+    <!-- Admin Login Section -->
     <section id="login">
         <h2>Admin Login</h2>
-        <form action="{{ url_for('main.login') }}" method="POST">
-            <label for="login-email">Email:</label>
-            <input type="email" id="login-email" name="email" required><br>
+        <p class="text-muted">Please log in with your admin credentials</p>
+        <form action="{{ url_for('main.admin_login') }}" method="POST">
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" name="email" required>
+            </div>
 
-            <label for="login-password">Password:</label>
-            <input type="password" id="login-password" name="password" required><br>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" name="password" required>
+            </div>
 
-            <button type="submit">Login</button>
+            <button type="submit" class="btn-primary">Admin Login</button>
         </form>
     </section>
 
     <section id="login">
-      <p>Go to <a href="{{ url_for('main.login') }}">User Login</a>.</p>
+      <p>Not an admin? Go to <a href="{{ url_for('main.login') }}">User Login</a>.</p>
     </section>
 
     <script>

@@ -4,71 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
-    <title>Book View</title>
+    <title>View Book - Book Dumps</title>
 </head>
 <body>
-
     <!-- Header -->
     <header>
-        <h1>Book View</h1>
+        <h1>📖 View Book</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
-                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search</a></li>
             </ul>
         </nav>
     </header>
 
-<!-- book view -->
-<section>
-    <h2>📖 {{ book[1] }}</h2>
-  <p><strong>Author:</strong> {{ book[2] }}</p>
+    <div class="container-lg">
+        <!-- Book Details Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>📚 {{ book[1] }}</h2>
+                    <span class="badge" style="background-color: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 4px;">
+                        PDF Available
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div>
+                        <p style="font-weight: bold; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Author</p>
+                        <p style="font-size: 1.1rem;">{{ book[2] }}</p>
+                    </div>
+                    <div>
+                        <p style="font-weight: bold; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Genre</p>
+                        <span class="badge" style="background-color: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 4px;">{{ book[5] if book|length > 5 else 'Unknown' }}</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: bold; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.25rem;">Year</p>
+                        <p style="font-size: 1.1rem;">{{ book[4] if book|length > 4 else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <!-- View button -->
-  <p>
-    <a href="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" target="_blank">
-      🔗 View PDF
-    </a>
-  </p>
+        <!-- PDF Viewer -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>📄 PDF Viewer</h2>
+            </div>
+            <div class="card-body">
+                <div style="background-color: #f3f4f6; border-radius: 8px; overflow: hidden; height: 600px;">
+                    <iframe 
+                        src="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" 
+                        style="width: 100%; height: 100%; border: none;"
+                        title="Book PDF Viewer">
+                    </iframe>
+                </div>
+            </div>
+        </div>
 
-  <!-- Embedded PDF viewer -->
-  <iframe 
-    src="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" 
-    width="100%" 
-    height="600px">
-  </iframe>
-</section>
-
-    <!-- Pagination -->
-    <section id="pagination">
-        <button onclick="goToFirstPage()">First</button>
-        <button onclick="goToPreviousPage()">Back</button>
-        <button onclick="goToNextPage()">Next</button>
-        <button onclick="goToLastPage()">Last</button>
-    </section>
-
-    <!-- Pagination scripts (optional placeholder functions) -->
-    <script>
-        function goToFirstPage() {
-            alert("First page clicked");
-        }
-
-        function goToPreviousPage() {
-            alert("Previous page clicked");
-        }
-
-        function goToNextPage() {
-            alert("Next page clicked");
-        }
-
-        function goToLastPage() {
-            alert("Last page clicked");
-        }
-    </script>
+        <!-- Actions -->
+        <div class="card mt-4">
+            <div class="card-body" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ url_for('main.view_file', filename=book[3].split('/')[-1]) }}" download class="btn btn-primary">⬇️ Download PDF</a>
+                <a href="{{ url_for('main.books') }}" class="btn btn-secondary">← Back to Books</a>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -4,58 +4,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
-    <title>Upload Profile Picture</title>
+    <title>Upload Profile Picture - Book Dumps</title>
+    <style>
+        .upload-container {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background-color: rgba(79, 70, 229, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(79, 70, 229, 0.15);
+        }
+
+        .upload-zone h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .upload-zone p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-preview {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .upload-container {
+                margin: 1rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Flash Message Display -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-container">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          {{ message }}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>User Profile</h1>
+        <h1>📷 Profile Picture</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.profile') }}">Back to Profile</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Profile Info -->
+    <!-- Upload Container -->
+    <div class="upload-container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Update Your Profile Picture</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="upload-form">
+                    <div class="upload-zone" id="upload-zone">
+                        <h3>📁 Upload Your Picture</h3>
+                        <p>Drag and drop your image here, or click to select</p>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="picture-input" name="picture" accept=".png,.jpg,.jpeg" required>
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('picture-input').click()">
+                                Choose File
+                            </button>
+                        </div>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                            PNG, JPG, or JPEG (max 5MB)
+                        </p>
+                    </div>
 
-    <section id="profile-picture">
-     <h2>Upload a file</h2>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="picture" accept=".png,.jpg,.jpeg">
-            <button type="submit">Upload</button>
-        </form>
-  </section>
+                    <div class="file-info" id="file-info">
+                        <p><strong>Selected file:</strong> <span id="file-name"></span></p>
+                        <p><strong>Size:</strong> <span id="file-size"></span></p>
+                    </div>
 
+                    <div class="file-preview" id="file-preview"></div>
 
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Upload Picture</button>
+                </form>
+
+                <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-block mt-2">Cancel</a>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>💡 Tips for Best Results</h3>
+            </div>
+            <div class="card-body">
+                <ul style="padding-left: 1.5rem; line-height: 1.8; color: var(--text-muted);">
+                    <li>Use a clear, well-lit photo</li>
+                    <li>Square images work best (recommended)</li>
+                    <li>File size should not exceed 5MB</li>
+                    <li>Supported formats: PNG, JPG, JPEG</li>
+                    <li>Keep your face visible and centered</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <script>
-  // Automatically remove flash messages after fadeout
-    document.addEventListener("DOMContentLoaded", () => {
-    const flashes = document.querySelectorAll(".flash-message");
-        setTimeout(() => {
-            flashes.forEach(msg => msg.remove());
-            }, 6000); // 6 seconds total (3s visible + 3s fade)
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('picture-input');
+        const fileInfo = document.getElementById('file-info');
+        const filePreview = document.getElementById('file-preview');
+        const flashContainer = document.getElementById('flash-container');
+
+        // Drag and drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect();
+        });
+
+        // File input change
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-size').textContent = (file.size / 1024).toFixed(2) + ' KB';
+                fileInfo.classList.add('show');
+
+                // Preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    filePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Auto-remove flash messages
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
         });
     </script>
 
-    </body>
-
+</body>
 </html>

@@ -6,91 +6,140 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-        <!-- Flash Message Display -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-container">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          {{ message }}
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>Upload a Book</h1>
+        <h1>📤 Upload a Book</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search Book</a></li>
-                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search</a></li>
+                <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- User Profile Section -->
-    <section id="profile">
-        <h2><a href="{{ url_for('main.profile') }}">User Profile</a></h2>
-        <p><strong>Name:</strong> {{ username }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-    </section>
+    <div class="container">
+        <!-- Upload Form Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Book Information</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>Title: <span style="color: red;">*</span></label>
+                                <input type="text" name="title" placeholder="Enter book title" required>
+                            </div>
+                        </div>
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>Author: <span style="color: red;">*</span></label>
+                                <input type="text" name="author" placeholder="Enter author name" required>
+                            </div>
+                        </div>
+                    </div>
 
-    <!-- Book Search Section -->
-    <section id="search">
-        <h2>Search Books</h2>
-        <form action="{{ url_for('main.search') }}" method="get">
-            <input type="text" name="q" value="{{ query or '' }}" placeholder="🔍Search books..." />
-            <button type="submit">Search</button>
-        </form>
+                    <div class="row">
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>Year Published: <span style="color: red;">*</span></label>
+                                <input type="number" name="year" min="1000" placeholder="e.g., 2023" required>
+                            </div>
+                        </div>
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>Genre: <span style="color: red;">*</span></label>
+                                <input type="text" name="genre" placeholder="e.g., Fiction" required>
+                            </div>
+                        </div>
+                    </div>
 
-        <p><a href="{{ url_for('main.books') }}">All Books List</a></p>
-    </section>
+                    <div class="row">
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>Language: <span style="color: red;">*</span></label>
+                                <input type="text" name="language" placeholder="e.g., English" required>
+                            </div>
+                        </div>
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label>PDF File: <span style="color: red;">*</span></label>
+                                <input type="file" name="file" accept=".pdf" required>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="form-group col-full">
+                        <label>Overview: <span style="color: red;">*</span></label>
+                        <textarea name="overview" rows="5" placeholder="Write a short overview of the book..." required></textarea>
+                    </div>
 
-    <!-- Upload Book Form -->
-    <section id="upload-book">
-        <h2>Book Information</h2>
-         <form action="{{ url_for('main.upload') }}" method="POST" enctype="multipart/form-data">
-            <label>Title:</label><br>
-            <input type="text" name="title" required><br><br>
+                    <p class="text-muted text-small">
+                        <span style="color: red;">*</span> = Required field
+                    </p>
 
-            <label>Author:</label><br>
-            <input type="text" name="author" required><br><br>
+                    <button type="submit" class="btn btn-primary btn-large">Upload Book</button>
+                </form>
+            </div>
+        </div>
 
-            <label for="year">Year Published:</label><br>
-            <input type="number" name="year" min="0" required><br><br>
+        <!-- Tips Section -->
+        <div class="card mt-4 bg-light">
+            <div class="card-header">
+                <h3>📝 Submission Tips</h3>
+            </div>
+            <div class="card-body">
+                <ul style="margin: 0; padding-left: 1.5rem;">
+                    <li>Ensure your PDF file is under 50MB</li>
+                    <li>Provide a clear, concise overview</li>
+                    <li>Use proper spelling and grammar</li>
+                    <li>Accurate publication year helps users find books</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-            <label for="genre">Genre:</label><br>
-            <input type="text" name="genre" required><br><br>
-
-            <label for="language">Language:</label><br>
-            <input type="text" name="language" required><br><br>
-
-            <label for="overview">Overview:</label><br>
-            <textarea name="overview" rows="5" cols="40" placeholder="Write a short overview of the book..." required></textarea><br><br>
-
-            <label>PDF File:</label><br>
-            <input type="file" name="file" accept=".pdf" required><br><br>
-
-            <button type="submit">Upload</button>
-        </form>
-
-    </section>
     <script>
-  // Automatically remove flash messages after fadeout
-  document.addEventListener("DOMContentLoaded", () => {
-    const flashes = document.querySelectorAll(".flash-message");
-    setTimeout(() => {
-      flashes.forEach(msg => msg.remove());
-    }, 6000); // 6 seconds total (3s visible + 3s fade)
-  });
-</script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
+
+    <style>
+        .text-small {
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+
+            .col-50 {
+                flex: 0 1 100%;
+            }
+        }
+    </style>
 
 </body>
 </html>

@@ -86,6 +86,43 @@ class UserQueries:
             conn.rollback()
             cur.close()
             return False
+    
+    @staticmethod
+    def get_all_users(conn):
+        """Get all users (admin function)"""
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute("SELECT id, username, email, role, picture FROM users ORDER BY username;")
+        users = cur.fetchall()
+        cur.close()
+        return users
+    
+    @staticmethod
+    def delete_user(conn, user_id):
+        """Delete a user (admin function)"""
+        cur = conn.cursor()
+        try:
+            cur.execute("DELETE FROM users WHERE id = %s;", (user_id,))
+            conn.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            conn.rollback()
+            cur.close()
+            return False
+    
+    @staticmethod
+    def update_user_role(conn, user_id, new_role):
+        """Update user role (admin function)"""
+        cur = conn.cursor()
+        try:
+            cur.execute("UPDATE users SET role = %s WHERE id = %s;", (new_role, user_id))
+            conn.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            conn.rollback()
+            cur.close()
+            return False
 
 
 class BookQueries:
@@ -181,6 +218,20 @@ class BookQueries:
         results = cur.fetchall()
         cur.close()
         return results
+    
+    @staticmethod
+    def delete_book(conn, book_id):
+        """Delete a book (admin function)"""
+        cur = conn.cursor()
+        try:
+            cur.execute("DELETE FROM books WHERE id = %s;", (book_id,))
+            conn.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            conn.rollback()
+            cur.close()
+            return False
 
 
 class LogQueries:

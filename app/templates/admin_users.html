@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Manage Users - Admin - Book Dumps</title>
+</head>
+<body>
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Header -->
+    <header>
+        <h1>👥 Manage Users</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.admin_dashboard') }}">← Admin Dashboard</a></li>
+                <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
+                <li><a href="{{ url_for('main.admin_books') }}">Manage Books</a></li>
+                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Users Management Section -->
+    <section class="container-lg">
+        <h2>All Users</h2>
+        
+        {% if users %}
+            <div class="table-responsive" style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Picture</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <span class="badge badge-danger">Admin</span>
+                                {% else %}
+                                    <span class="badge badge-primary">User</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.picture %}
+                                    <a href="{{ user.picture }}" target="_blank">View</a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Role Toggle Form -->
+                                <form method="POST" action="{{ url_for('main.admin_update_user_role', user_id=user.id) }}" style="display: inline;">
+                                    <select name="role" class="form-select-inline" onchange="this.form.submit();">
+                                        <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                    </select>
+                                </form>
+                                
+                                <!-- Delete Form -->
+                                {% if session.get('user_id') != user.id %}
+                                    <form method="POST" action="{{ url_for('main.admin_delete_user', user_id=user.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                    </form>
+                                {% else %}
+                                    <button class="btn btn-small btn-danger" disabled title="Cannot delete your own account">Delete</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="no-results">No users found</p>
+        {% endif %}
+    </section>
+
+    <style>
+        .form-select-inline {
+            padding: 4px 8px;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        
+        .table-responsive {
+            border-radius: var(--radius-lg);
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
+</body>
+</html>

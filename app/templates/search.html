@@ -7,57 +7,132 @@
     <title>Book Search - Book Dumps</title>
 </head>
 <body>
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-    
     <!-- Header -->
     <header>
-        <h1>Book Dumps Search</h1>
+        <h1>🔍 Search Books</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.advanced') }}">Avanced Search</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Basic Search -->
-     <div class="searching">
-    <section id="name-search">
-        <h2>What book are you looking for?</h2>
+    <div class="container">
+        <!-- Search Form Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>What book are you looking for?</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('main.search') }}" method="get" class="search-bar">
+                    <input type="text" name="q" value="{{ query or '' }}" placeholder="Search by title, author, genre..." />
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                <p class="text-center text-muted mt-2">
+                    💡 <a href="{{ url_for('main.advanced') }}">Try Advanced Search</a> for more filter options
+                </p>
+            </div>
+        </div>
 
-        <form action="{{ url_for('main.search') }}" method="get">
-            <input type="text" name="q" value="{{ query or '' }}" placeholder="🔍Search books..." />
-            <button type="submit">Search</button>
-        </form>
-        
-        <h2>Go to <a href="{{ url_for('main.advanced') }}"><strong>Avanced Search</strong></a> if you can't find it</h2>
-
+        <!-- Search Results Section -->
         {% if query %}
-            <h2>Search results for "{{ query }}"</h2>
+        <div class="mt-4">
+            <h2>Results for "{{ query }}"</h2>
+            
             {% if results %}
-                <ul>
-                    {% for book in results %}
-                        <li>
-                            <a href="{{ url_for('main.bookview', book_id=book[0]) }}">{{ book[1] }}</a>
-                            — {{ book[2] }} ({{ book[3] }}) — {{ book[4] }} — {{ book[5] }}
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="search-results">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Year</th>
+                                <th>Genre</th>
+                                <th>Language</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in results %}
+                            <tr>
+                                <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}"><strong>{{ book[1] }}</strong></a></td>
+                                <td>{{ book[2] }}</td>
+                                <td>{{ book[3] }}</td>
+                                <td><span class="badge badge-primary">{{ book[4] }}</span></td>
+                                <td>{{ book[5] }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% else %}
-                <p>No books found for "{{ query }}".</p>
+                <div class="card bg-light">
+                    <p class="text-center text-muted" style="padding: 2rem;">
+                        😔 No books found for "{{ query }}". <br>
+                        <a href="{{ url_for('main.advanced') }}">Try Advanced Search</a> or refine your keywords.
+                    </p>
+                </div>
             {% endif %}
+        </div>
         {% else %}
-            <h2>🔍 Search Books</h2>
-            <p>Type a keyword (e.g. title, author, year, or genre) and press <strong>Search</strong>.</p>
+        <div class="card mt-4 bg-light">
+            <h3 class="text-center">📚 Start Searching</h3>
+            <p class="text-center text-muted">
+                Type a keyword in the search box above (e.g., book title, author name, genre, or year)<br>
+                and click <strong>Search</strong> to find books.
+            </p>
+        </div>
         {% endif %}
+    </div>
 
-    </section>
-     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
+
+    <style>
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        .search-bar input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        @media (max-width: 768px) {
+            .search-bar {
+                flex-direction: column;
+            }
+        }
+    </style>
 
 </body>
 </html>

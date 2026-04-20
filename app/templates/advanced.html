@@ -4,68 +4,157 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
-    <title>Book Search - Book Dumps</title>
+    <title>Advanced Search - Book Dumps</title>
 </head>
 <body>
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>Book Dumps Search</h1>
+        <h1>🔎 Advanced Search</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Back to Dashboard</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="{{ url_for('main.profile') }}">User Profile</a></li>
+                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('main.search') }}">Basic Search</a></li>
+                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Advanced Search  -->
-    <div class="searching2">
-    <section id="advanced-search">
-        <h2>Advanced Search</h2>
-        <form action="{{ url_for('main.advanced') }}" method="post">
-            <label for="title">Title:</label><br>
-            <input type="text" id="title" name="title"><br>
+    <div class="container">
+        <!-- Advanced Search Form -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Filter Books</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('main.advanced') }}" method="post">
+                    <div class="row">
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label for="title">Title:</label>
+                                <input type="text" id="title" name="title" placeholder="Book title...">
+                            </div>
+                        </div>
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label for="author">Author:</label>
+                                <input type="text" id="author" name="author" placeholder="Author name...">
+                            </div>
+                        </div>
+                    </div>
 
-            <label for="author">Author:</label><br>
-            <input type="text" id="author" name="author"><br>
+                    <div class="row">
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label for="year">Year Published:</label>
+                                <input type="number" id="year" name="year" placeholder="e.g., 2023">
+                            </div>
+                        </div>
+                        <div class="col-50">
+                            <div class="form-group">
+                                <label for="genre">Genre:</label>
+                                <input type="text" id="genre" name="genre" placeholder="e.g., Fiction">
+                            </div>
+                        </div>
+                    </div>
 
-            <label for="year">Year Published:</label><br>
-            <input type="number" id="year" name="year"><br>
+                    <div class="form-group">
+                        <label for="language">Language:</label>
+                        <input type="text" id="language" name="language" placeholder="e.g., English">
+                    </div>
 
-            <label for="genre">Genre:</label><br>
-            <input type="text" id="genre" name="genre"><br>
+                    <button type="submit" class="btn btn-primary btn-large">🔍 Search</button>
+                </form>
+            </div>
+        </div>
 
-            <label for="language">Language:</label><br>
-            <input type="text" id="language" name="language"><br><br>
-
-            <button type="submit">Advanced Search</button>
-        </form>
-
+        <!-- Search Results -->
         {% if results %}
-            <h3>Results:</h3>
-            <ul>
-                {% for book in results %}
-                    <li>
-                        <a href="{{ url_for('main.bookview', book_id=book[0]) }}">{{ book[1] }}</a>
-                        — {{ book[2] }} ({{ book[3] }}) — {{ book[4] }} — {{ book[5] }}
-                    </li>
-                {% endfor %}
-            </ul>
+        <div class="mt-4">
+            <h2>Search Results</h2>
+            <p class="text-muted">Found {{ results|length }} book(s)</p>
+            
+            <div class="search-results">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                            <th>Language</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in results %}
+                        <tr>
+                            <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}"><strong>{{ book[1] }}</strong></a></td>
+                            <td>{{ book[2] }}</td>
+                            <td>{{ book[3] }}</td>
+                            <td><span class="badge badge-primary">{{ book[4] }}</span></td>
+                            <td>{{ book[5] }}</td>
+                            <td>
+                                <a href="{{ url_for('main.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% else %}
-            <h2>🔍 Search Books</h2>
-            <p><strong>No books found for "{{ results }}".</strong></p>
-            <p>Type a keyword (e.g. title, author, year, or genre) and press <strong>Advanced Search</strong>.</p>
+        <div class="card mt-4 bg-light">
+            <p class="text-center text-muted" style="padding: 2rem;">
+                💡 Enter search criteria above and click <strong>Search</strong> to find books matching your filters.
+            </p>
+        </div>
         {% endif %}
+    </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
 
-    </section>
-     </div>
+    <style>
+        .form-select-inline {
+            padding: 8px 12px;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            cursor: pointer;
+        }
 
+        @media (max-width: 768px) {
+            .row {
+                flex-direction: column;
+            }
+
+            .col-50 {
+                flex: 0 1 100%;
+            }
+        }
+    </style>
 
 </body>
 </html>

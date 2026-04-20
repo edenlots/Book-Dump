@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Manage Books - Admin - Book Dumps</title>
+</head>
+<body>
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Header -->
+    <header>
+        <h1>📚 Manage Books</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.admin_dashboard') }}">← Admin Dashboard</a></li>
+                <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
+                <li><a href="{{ url_for('main.admin_books') }}">Manage Books</a></li>
+                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Books Management Section -->
+    <section class="container-lg">
+        <h2>All Books in System</h2>
+        
+        {% if books %}
+            <div class="table-responsive" style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Year</th>
+                            <th>Genre</th>
+                            <th>Language</th>
+                            <th>Overview</th>
+                            <th>File</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr>
+                            <td>{{ book.id }}</td>
+                            <td>
+                                <strong>{{ book.title }}</strong>
+                            </td>
+                            <td>{{ book.author }}</td>
+                            <td>{{ book.year }}</td>
+                            <td>
+                                <span class="badge badge-primary">{{ book.genre }}</span>
+                            </td>
+                            <td>{{ book.language }}</td>
+                            <td title="{{ book.overview[:100] }}...">
+                                {{ book.overview[:50] }}{% if book.overview|length > 50 %}...{% endif %}
+                            </td>
+                            <td>
+                                {% if book.file %}
+                                    <a href="{{ url_for('main.view_file', filename=book.file.split('/')[-1]) }}" target="_blank" class="btn btn-small btn-outline">View</a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <!-- Delete Form -->
+                                <form method="POST" action="{{ url_for('main.admin_delete_book', book_id=book.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this book? This action cannot be undone.');">
+                                    <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="no-results">No books found in the system</p>
+        {% endif %}
+    </section>
+
+    <!-- Summary -->
+    <section class="container">
+        <div class="card">
+            <h3>Summary</h3>
+            <p><strong>Total Books:</strong> {{ books | length }}</p>
+            <p><strong>Total Genres:</strong> {{ books | map(attribute='genre') | unique | list | length }}</p>
+            <p><strong>Total Languages:</strong> {{ books | map(attribute='language') | unique | list | length }}</p>
+        </div>
+    </section>
+
+    <style>
+        .table-responsive {
+            border-radius: var(--radius-lg);
+        }
+        
+        td[title] {
+            cursor: help;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
+</body>
+</html>

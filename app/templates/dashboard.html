@@ -7,125 +7,211 @@
     <title>Dashboard - Book Dumps</title>
 </head>
 <body>
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>Welcome to Book Dumps Dashboard</h1>
+        <h1>📚 Welcome to Book Dumps Dashboard</h1>
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="bookshelf.html">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
+                <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- User Profile Section -->
-    <section id="profile">
-        <h2><a href="{{ url_for('main.profile') }}">User Profile</a></h2>
-        <p><strong>Name:</strong> {{ username }}</p>
-        <p><strong>Email:</strong> {{ email }}</p>
-    </section>
+    <!-- Main Container -->
+    <div class="container-lg">
+        
+        <!-- Profile & Search Section - Side by Side -->
+        <div class="row mt-4">
+            <!-- User Profile Card -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>👤 User Profile</h2>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Name:</strong> {{ username }}</p>
+                        <p><strong>Email:</strong> {{ email }}</p>
+                        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">View Full Profile</a>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Book Search Section -->
-    <section id="search">
-        <h2>Search Books</h2>
-        <form action="{{ url_for('main.search') }}" method="get">
-            <input type="text" name="q" value="{{ query or '' }}" placeholder="🔍Search books..." />
-            <button type="submit">Search</button>
-        </form>
+            <!-- Search Section Card -->
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🔍 Search Books</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('main.search') }}" method="get" class="form-group">
+                            <input type="text" name="q" value="{{ query or '' }}" placeholder="Search books..." class="mb-2" />
+                            <button type="submit" class="btn btn-primary btn-block">Search</button>
+                        </form>
+                        <p class="text-center mt-2"><a href="{{ url_for('main.books') }}">Browse All Books →</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <p><a href="{{ url_for('main.books') }}">All Books List</a></p>
-    </section>
+        <!-- Quick Actions Section -->
+        <div class="mt-4">
+            <h2>Quick Actions</h2>
+            <div class="row gap-2">
+                <div class="col-33">
+                    <a href="{{ url_for('main.upload') }}" class="btn btn-secondary btn-block">📤 Upload Book</a>
+                </div>
+                <div class="col-33">
+                    <a href="{{ url_for('main.books') }}" class="btn btn-secondary btn-block">📚 All Books</a>
+                </div>
+                <div class="col-33">
+                    <a href="{{ url_for('main.advanced') }}" class="btn btn-secondary btn-block">🔎 Advanced Search</a>
+                </div>
+            </div>
+        </div>
 
-    <!-- My Bookshelf Section -->
-    <section id="bookshelf">
-        <h2>My Bookshelf</h2>
-        <table border="1" cellpadding="8" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Book Title</th>
-                    <th>Author</th>
-                    <th>Year Published</th>
-                    <th>Genre</th>
-                    <th>Language</th>
-                    <th>Overview</th>
-                    <th>File</th>
-                </tr>
-            </thead>
-            <tbody id="booksBody">
-                {% for book in books %}
-                <tr>
-                    <td><a href="{{ url_for('main.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.year }}</td>
-                    <td>{{ book.genre }}</td>
-                    <td>{{ book.language }}</td>
-                    <td>{{ book.overview }}</td>
-                    <td>
-                        <a href="{{ url_for('main.view_file', filename=book.file) }}" target="_blank">
-                            View PDF
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+        <!-- My Bookshelf Section -->
+        <section id="bookshelf" class="mt-4">
+            <h2>📖 My Bookshelf</h2>
+            
+            {% if books %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Year</th>
+                                <th>Genre</th>
+                                <th>Language</th>
+                                <th>Overview</th>
+                                <th>File</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksBody">
+                            {% for book in books %}
+                            <tr>
+                                <td><a href="{{ url_for('main.bookview', book_id=book.id) }}"><strong>{{ book.title }}</strong></a></td>
+                                <td>{{ book.author }}</td>
+                                <td>{{ book.year }}</td>
+                                <td><span class="badge badge-primary">{{ book.genre }}</span></td>
+                                <td>{{ book.language }}</td>
+                                <td title="{{ book.overview }}">
+                                    {{ book.overview[:50] }}{% if book.overview|length > 50 %}...{% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.view_file', filename=book.file) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-    <!-- Pagination -->
-    <section id="pagination">
-        <button onclick="goToFirstPage()">First</button>
-        <button id="PreviousPage">Back</button>
-        <span id="pageInfo"> </span>
-        <button id="NextPage">Next</button>
-        <button onclick="goToLastPage()">Last</button>
-    </section>
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button onclick="goToFirstPage()" class="btn-small">⏮ First</button>
+                    <button id="PreviousPage" class="btn-small">⬅ Back</button>
+                    <span id="pageInfo" style="padding: 8px 12px; font-weight: 500;"> </span>
+                    <button id="NextPage" class="btn-small">➡ Next</button>
+                    <button onclick="goToLastPage()" class="btn-small">⏭ Last</button>
+                </div>
+            {% else %}
+                <div class="card">
+                    <p class="text-center text-muted" style="padding: 2rem;">
+                        📭 No books in your bookshelf yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+    </div>
 
     <!-- Pagination scripts -->
     <script>
-
         let currentPage = 1;
         const rowsPerPage = 10;
         const tablebody = document.getElementById('booksBody');
-        const rows = Array.from(tablebody.getElementsByTagName('tr'));
-        const totalPages = Math.ceil(rows.length/rowsPerPage);
+        
+        if (tablebody) {
+            const rows = Array.from(tablebody.getElementsByTagName('tr'));
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
 
-        function showPage(page){
-            rows.forEach(row=>row.style.display='none');
-            const start =(page-1)*rowsPerPage;
-            const end = start + rowsPerPage;
-            rows.slice(start,end).forEach(row=>row.style.display='');
-            document.getElementById('pageInfo').textContent=`Page ${page} of ${totalPages}`;
-        }
+            function showPage(page) {
+                rows.forEach(row => row.style.display = 'none');
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                rows.slice(start, end).forEach(row => row.style.display = '');
+                document.getElementById('pageInfo').textContent = `Page ${page} of ${totalPages}`;
+            }
 
-        function goToFirstPage() {
-            alert("First page clicked");
-        }
-
-        document.getElementById('PreviousPage').addEventListener('click',()=> {
-            if (currentPage >1){
-                currentPage--;
+            function goToFirstPage() {
+                currentPage = 1;
                 showPage(currentPage);
             }
-        });
 
-        document.getElementById('NextPage').addEventListener('click',() => {
-            if (currentPage<totalPages){
-                currentPage++;
+            document.getElementById('PreviousPage').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            document.getElementById('NextPage').addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            function goToLastPage() {
+                currentPage = totalPages;
                 showPage(currentPage);
             }
-        });
 
-        function goToLastPage() {
-            alert("Last page clicked");
+            showPage(currentPage);
         }
 
-        showPage(currentPage);
+        // Remove flash messages after fadeout
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
     </script>
 
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+    </style>
 
 </body>
 </html>

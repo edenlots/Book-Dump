@@ -4,23 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
+    <title>Book Dumps - Your Library, Your Way</title>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #7c3aed 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            border-radius: 12px;
+        }
 
-    <title>Book Dumps: Facts and Fictionary</title>
+        .hero-section h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .hero-section p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background-color: #f9fafb;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Website Title -->
+    <!-- Header -->
     <header>
-        <h1>Book Dumps: Facts and Fictionary</h1>
+        <h1>📚 Book Dumps</h1>
     </header>
 
-     <!-- Navigation -->
-    <section id="homepage">
-        <h2>Welcome to Book Dumps! Need a book? We got it for you.</h2> 
-        <ul>
-            <p><strong><a href="{{ url_for('main.login') }}">Login</a></strong></p>
-            <p><strong><a href="{{ url_for('main.signup') }}">Sign Up</a></strong></p>
-        </ul>
-    </section> 
+    <!-- Main Container -->
+    <div class="container-lg">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1>Welcome to Book Dumps</h1>
+            <p>Your personal library. Facts, fiction, and everything in between.</p>
+            <p style="font-size: 1rem; opacity: 0.9;">Discover, share, and manage your favorite books all in one place.</p>
+            
+            <div class="hero-buttons">
+                <a href="{{ url_for('main.login') }}" class="btn btn-primary">Sign In</a>
+                <a href="{{ url_for('main.signup') }}" class="btn btn-secondary">Create Account</a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section>
+            <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2rem;">Why Choose Book Dumps?</h2>
+            <div class="features">
+                <div class="feature-card">
+                    <h3>📖 Vast Collection</h3>
+                    <p>Access thousands of books across all genres. From classic literature to modern bestsellers, find what you're looking for.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>☁️ Cloud Storage</h3>
+                    <p>Upload your own books and access them anywhere, anytime. Your personal library in the cloud.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔍 Smart Search</h3>
+                    <p>Find books by title, author, genre, or language. Advanced filtering makes discovering your next great read easy.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>👥 Community</h3>
+                    <p>Connect with other book lovers. Share recommendations and discover what others are reading.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Fast Access</h3>
+                    <p>Read PDFs directly in your browser. No downloads or complicated setups required.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔒 Secure</h3>
+                    <p>Your books and reading history are private and secure. We take your privacy seriously.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding: 2rem; background-color: #f9fafb; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Ready to Start Reading?</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-muted);">Join thousands of book enthusiasts today.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('main.signup') }}" class="btn btn-primary" style="background-color: var(--primary-color); color: white;">Sign Up Now</a>
+                <a href="{{ url_for('main.login') }}" class="btn btn-secondary">Already a Member?</a>
+            </div>
+        </section>
+    </div>
+
 </body>
 </html>

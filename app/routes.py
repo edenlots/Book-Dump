@@ -46,6 +46,26 @@ def login():
 
 @bp.route("/admin_login", methods=["GET", "POST"])
 def admin_login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        conn = current_app.get_db()
+        user = UserQueries.get_user_by_email(conn, email)
+
+        if user and user[4] == "admin":  # Check if role is 'admin'
+            # check password hash
+            if check_password_hash(user[3], password):
+                session["user_id"] = user[0]
+                session["user_name"] = user[1]
+                session["user_role"] = user[4]
+                flash("Admin login successful!", "success")
+                return redirect(url_for("main.admin_dashboard"))
+            else:
+                flash("Incorrect password.", "danger")
+        else:
+            flash("Admin account not found or insufficient permissions.", "danger")
+    
     return render_template("adminlogin.html")
 
 @bp.route("/signup", methods=["GET", "POST"])
@@ -94,7 +114,11 @@ def update_password():
                 flash("Wrong password. Please use the correct active password.", "danger")
         else:
             flash("Invalid Account.", "danger")
-    return render_template("profile.html")
+    
+    conn = current_app.get_db()
+    user = UserQueries.get_user_profile(conn, session.get("user_id"))
+    user_data = {"username": user[0], "email": user[1], "picture": user[2]} if user else None
+    return render_template("profile.html", user=user_data)
 
 
 @bp.route("/dashboard")
@@ -163,7 +187,6 @@ def profile_picture():
     return render_template("profilepicture.html")
 
 
-#API-STYLE
 @bp.route("/books")
 def books():
     if "user_id" not in session:
@@ -274,6 +297,111 @@ def advanced():
         results = BookQueries.advanced_search(conn, title, author, year, genre, language)
 
     return render_template("advanced.html", results=results)
+
+
+# ==================== ADMIN ROUTES ====================
+
+@bp.route("/admin_dashboard")
+def admin_dashboard():
+    """Admin dashboard - view all users and books"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    users = UserQueries.get_all_users(conn)
+    books = BookQueries.get_all_books(conn)
+    
+    return render_template("admin_dashboard.html", users=users, books=books)
+
+
+@bp.route("/admin/users")
+def admin_users():
+    """Manage users"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    users = UserQueries.get_all_users(conn)
+    
+    return render_template("admin_users.html", users=users)
+
+
+@bp.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+def admin_delete_user(user_id):
+    """Delete a user"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    if session["user_id"] == user_id:
+        flash("Cannot delete your own account.", "warning")
+        return redirect(url_for("main.admin_users"))
+    
+    conn = current_app.get_db()
+    success = UserQueries.delete_user(conn, user_id)
+    
+    if success:
+        flash("User deleted successfully!", "success")
+    else:
+        flash("Error deleting user.", "danger")
+    
+    return redirect(url_for("main.admin_users"))
+
+
+@bp.route("/admin/users/<int:user_id>/role", methods=["POST"])
+def admin_update_user_role(user_id):
+    """Update user role (admin/user)"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    new_role = request.form.get("role")
+    if new_role not in ["admin", "user"]:
+        flash("Invalid role.", "danger")
+        return redirect(url_for("main.admin_users"))
+    
+    conn = current_app.get_db()
+    success = UserQueries.update_user_role(conn, user_id, new_role)
+    
+    if success:
+        flash(f"User role updated to {new_role}!", "success")
+    else:
+        flash("Error updating user role.", "danger")
+    
+    return redirect(url_for("main.admin_users"))
+
+
+@bp.route("/admin/books")
+def admin_books():
+    """Manage books"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    books = BookQueries.get_all_books(conn)
+    
+    return render_template("admin_books.html", books=books)
+
+
+@bp.route("/admin/books/<int:book_id>/delete", methods=["POST"])
+def admin_delete_book(book_id):
+    """Delete a book"""
+    if "user_id" not in session or session.get("user_role") != "admin":
+        flash("Admin access required.", "danger")
+        return redirect(url_for("main.login"))
+    
+    conn = current_app.get_db()
+    success = BookQueries.delete_book(conn, book_id)
+    
+    if success:
+        flash("Book deleted successfully!", "success")
+    else:
+        flash("Error deleting book.", "danger")
+    
+    return redirect(url_for("main.admin_books"))
 
 
 '''

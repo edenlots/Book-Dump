@@ -5,55 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../static/styles.css">
     <title>Sign Up - Book Dumps</title>
+    <style>
+        .signup-container {
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .signup-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .signup-header p {
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .signup-container {
+                margin: 1rem 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-        <!-- Flash Message Display -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <div id="flash-container">
-      {% for category, message in messages %}
-        <div class="flash-message {{ category }}">
-          {{ message }}
+    <!-- Flash Message Display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endwith %}
-
+      {% endif %}
+    {% endwith %}
 
     <!-- Header -->
     <header>
-        <h1>Sign Up for Book Dumps</h1>
-        <p><a href="{{ url_for('main.index') }}">← Back to Home</a></p>
+        <h1>📝 Sign Up</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.index') }}">← Back to Home</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <!-- Signup Form -->
-    <section id="signup">
-        <form action="{{ url_for('main.signup') }}" method="POST">
-            <label for="signup-name">Name:</label>
-            <input type="text" id="signup-name" name="name" required><br>
+    <!-- Signup Container -->
+    <div class="signup-container">
+        <div class="card">
+            <div class="card-header">
+                <div class="signup-header">
+                    <h2>Create Your Account</h2>
+                    <p>Join our community of book enthusiasts</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('main.signup') }}" method="POST">
+                    <div class="form-group">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" name="name" required placeholder="John Doe">
+                    </div>
 
-            <label for="signup-email">Email:</label>
-            <input type="email" id="signup-email" name="email" required><br>
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" name="email" required placeholder="your@email.com">
+                    </div>
 
-            <label for="signup-password">Password:</label>
-            <input type="password" id="signup-password" name="password" required><br>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" required placeholder="••••••••">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                            Use at least 8 characters
+                        </small>
+                    </div>
 
-            <button type="submit">Sign Up</button>
-        </form>
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </form>
+            </div>
+        </div>
 
-    </section>
+        <!-- Login Link -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <p style="color: var(--text-muted);">Already have an account? 
+                <a href="{{ url_for('main.login') }}" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Sign in here</a>
+            </p>
+        </div>
+
+        <!-- Terms Notice -->
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem;">
+            By signing up, you agree to our Terms of Service and Privacy Policy
+        </p>
+    </div>
 
     <script>
-  // Automatically remove flash messages after fadeout
-  document.addEventListener("DOMContentLoaded", () => {
-    const flashes = document.querySelectorAll(".flash-message");
-    setTimeout(() => {
-      flashes.forEach(msg => msg.remove());
-    }, 6000); // 6 seconds total (3s visible + 3s fade)
-  });
-</script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => {
+                flashes.forEach(msg => msg.remove());
+            }, 6000);
+        });
+    </script>
 
 </body>
-
 </html>
