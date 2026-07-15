@@ -21,4 +21,4 @@ Features:
 - reset password (coming soon)
 - comments section (coming soon)
 
-Database Schema on Repo Coming Soon!
+Database Schema uploaded!
