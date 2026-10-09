@@ -20,9 +20,12 @@ class UserQueries:
     
     @staticmethod
     def get_user_by_id(conn, user_id):
-        """Get user info by user ID"""
+        """Get user info by user ID, including password hash and profile picture."""
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute("SELECT username, email FROM users WHERE id = %s;", (user_id,))
+        cur.execute(
+            "SELECT id, username, email, pw_hash, role, picture FROM users WHERE id = %s;",
+            (user_id,)
+        )
         user = cur.fetchone()
         cur.close()
         return user
@@ -253,3 +256,56 @@ class LogQueries:
             conn.rollback()
             cur.close()
             return False
+
+    @staticmethod
+    def get_recent_user_logs(conn, user_id, limit=3):
+        """Get the most recent activity records for a user."""
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+            """
+            SELECT l.id, l.action, l.timestamp, b.title AS book_title
+            FROM logs l
+            LEFT JOIN books b ON b.id = l.book_id
+            WHERE l.user_id = %s
+            ORDER BY l.timestamp DESC, l.id DESC
+            LIMIT %s;
+            """,
+            (user_id, limit),
+        )
+        logs = cur.fetchall()
+        cur.close()
+        return logs
+
+    @staticmethod
+    def get_user_activity_history(conn, user_id, action=None):
+        """Get user activity history joined with the books table."""
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        base_query = """
+            SELECT
+                l.id,
+                l.action,
+                l.timestamp,
+                b.id AS book_id,
+                b.title,
+                b.author,
+                b.year,
+                b.genre,
+                b.language,
+                b.file
+            FROM logs l
+            LEFT JOIN books b ON b.id = l.book_id
+            WHERE l.user_id = %s
+        """
+        params = [user_id]
+
+        if action:
+            base_query += " AND l.action = %s"
+            params.append(action)
+
+        base_query += " ORDER BY l.timestamp DESC, l.id DESC;"
+
+        cur.execute(base_query, tuple(params))
+        history = cur.fetchall()
+        cur.close()
+        return history

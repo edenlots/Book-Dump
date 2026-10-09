@@ -38,33 +38,84 @@
     <div class="container-lg">
         
         <!-- Profile & Search Section - Side by Side -->
-        <div class="row mt-4">
+        <div class="row mt-4 dashboard-top-row">
             <!-- User Profile Card -->
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
+            <div class="col dashboard-profile-col">
+                <div class="card dashboard-compact-card">
+                    <div class="card-header dashboard-compact-header">
                         <h2>👤 User Profile</h2>
                     </div>
-                    <div class="card-body">
-                        <p><strong>Name:</strong> {{ username }}</p>
-                        <p><strong>Email:</strong> {{ email }}</p>
-                        <a href="{{ url_for('main.profile') }}" class="btn btn-primary">View Full Profile</a>
+                    <div class="card-body profile-card-body">
+                        <div class="profile-card-main">
+                            <div class="profile-card-avatar-column">
+                                <div class="profile-card-avatar">
+                                    {% if picture %}
+                                        <img src="{{ picture }}" alt="Profile Picture" class="profile-card-image">
+                                    {% else %}
+                                        <div class="profile-card-image profile-card-placeholder">👤</div>
+                                    {% endif %}
+                                </div>
+                                <div class="profile-card-button-wrap">
+                                    <a href="{{ url_for('main.profile') }}" class="btn btn-primary">View Full Profile</a>
+                                </div>
+                            </div>
+
+                            <div class="profile-card-info">
+                                <p class="profile-card-label"><strong>Name</strong></p>
+                                <p class="profile-card-value">{{ username }}</p>
+                                <p class="profile-card-label"><strong>Username</strong></p>
+                                <p class="profile-card-value">@{{ username }}</p>
+                                <p class="profile-card-email"><strong>Email:</strong> {{ email }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Search Section Card -->
-            <div class="col">
-                <div class="card">
-                    <div class="card-header">
+            <div class="col dashboard-search-col">
+                <div class="card dashboard-compact-card">
+                    <div class="card-header dashboard-compact-header">
                         <h2>🔍 Search Books</h2>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body dashboard-search-body">
                         <form action="{{ url_for('main.search') }}" method="get" class="form-group">
                             <input type="text" name="q" value="{{ query or '' }}" placeholder="Search books..." class="mb-2" />
                             <button type="submit" class="btn btn-primary btn-block">Search</button>
                         </form>
                         <p class="text-center mt-2"><a href="{{ url_for('main.books') }}">Browse All Books →</a></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Card -->
+            <div class="col dashboard-recent-col">
+                <div class="card dashboard-compact-card">
+                    <div class="card-header dashboard-compact-header">
+                        <h2>🕘 Recent</h2>
+                    </div>
+                    <div class="card-body recent-card-body">
+                        {% if recent_activities %}
+                            <ul class="recent-activity-list">
+                                {% for activity in recent_activities %}
+                                    <li class="recent-activity-item">
+                                        <div class="recent-activity-topline">
+                                            <span class="recent-activity-action">{{ activity.action|capitalize }}</span>
+                                            <span class="recent-activity-time">{{ activity.timestamp.strftime('%b %d, %Y') }}</span>
+                                        </div>
+                                        <div class="recent-activity-book">
+                                            {% if activity.book_title %}
+                                                {{ activity.book_title }}
+                                            {% else %}
+                                                Account activity
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="recent-empty">No recent activity yet.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

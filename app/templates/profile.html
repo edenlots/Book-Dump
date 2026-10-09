@@ -103,11 +103,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
-                                No uploads yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
-                            </td>
-                        </tr>
+                        {% if uploads %}
+                            {% for item in uploads %}
+                                <tr>
+                                    <td>
+                                        {% if item.book_id %}
+                                            <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                        {% else %}
+                                            {{ item.title or 'Book removed' }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.author or '—' }}</td>
+                                    <td>{{ item.year or '—' }}</td>
+                                    <td>{{ item.genre or '—' }}</td>
+                                    <td>{{ item.language or '—' }}</td>
+                                    <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') if item.timestamp else '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
+                                    No uploads yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -129,11 +148,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
-                                No downloads yet. <a href="{{ url_for('main.books') }}">Browse books</a>!
-                            </td>
-                        </tr>
+                        {% if downloads %}
+                            {% for item in downloads %}
+                                <tr>
+                                    <td>
+                                        {% if item.book_id %}
+                                            <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                        {% else %}
+                                            {{ item.title or 'Book removed' }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.author or '—' }}</td>
+                                    <td>{{ item.year or '—' }}</td>
+                                    <td>{{ item.genre or '—' }}</td>
+                                    <td>{{ item.language or '—' }}</td>
+                                    <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') if item.timestamp else '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
+                                    No downloads yet. <a href="{{ url_for('main.books') }}">Browse books</a>!
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

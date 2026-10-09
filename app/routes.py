@@ -130,12 +130,15 @@ def dashboard():
     conn = current_app.get_db()
     user = UserQueries.get_user_by_id(conn, session["user_id"])
     books = BookQueries.get_all_books(conn)
+    recent_activities = LogQueries.get_recent_user_logs(conn, session["user_id"], 3)
 
     return render_template(
         "dashboard.html",
         username=user["username"],
         email=user["email"],
-        books=books
+        picture=user["picture"],
+        books=books,
+        recent_activities=recent_activities
     )
 
 @bp.route("/profile")
@@ -147,10 +150,17 @@ def profile():
 
     conn = current_app.get_db()
     user = UserQueries.get_user_profile(conn, user_id)
+    uploads = LogQueries.get_user_activity_history(conn, user_id, 'uploaded')
+    downloads = LogQueries.get_user_activity_history(conn, user_id, 'downloaded')
 
     user_data = {"username": user[0], "email": user[1], "picture": user[2]} if user else None
 
-    return render_template("profile.html", user=user_data)
+    return render_template(
+        "profile.html",
+        user=user_data,
+        uploads=uploads,
+        downloads=downloads,
+    )
 
 
 @bp.route("/profile_picture", methods=["GET", "POST"])
