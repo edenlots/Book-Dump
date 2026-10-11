@@ -23,7 +23,3 @@ Features:
 - reset password (coming soon)
 - comments section (coming soon)
 
-Database Schema uploaded!
-
-For an existing database, apply `migrations/20261011_account_history.sql` before
-creating or deleting accounts, or opening the admin profile history.
