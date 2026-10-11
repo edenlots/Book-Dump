@@ -10,20 +10,16 @@ uploaded files.
 - **Database:** PostgreSQL, accessed with direct SQL through psycopg2
 - **Frontend:** HTML, CSS, and vanilla JavaScript
 - **Templates:** Jinja, provided by Flask
-- **File storage:** Uploaded files are stored in `app/static/uploads/`; profile
-  pictures are stored in `app/static/profilepicture/`
+- **File storage:** Uses local storage path (for development)
 
 ## Python libraries
 
 - **Flask** — routes, request handling, sessions, flash messages, and templates
 - **psycopg2** — PostgreSQL driver and database access
-- **python-dotenv** — loads local configuration from `.env`
 - **Werkzeug** — password hashing and safe uploaded-filename handling; used by
   Flask as well
 
-The application also uses Python standard-library modules, including `os`,
-`pathlib`, and `datetime`-related database values. No frontend framework or
-JavaScript package is currently used.
+No frontend framework or JavaScript package is currently used.
 
 ## Implemented features
 
