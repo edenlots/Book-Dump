@@ -68,7 +68,7 @@
                                         </td>
                                         <td>{{ book.language }}</td>
                                         <td>
-                                            <a href="{{ url_for('main.view_file', filename=book.file) }}" target="_blank" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: var(--primary-color); color: white; border-radius: 4px; text-decoration: none;">
+                                            <a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; background-color: var(--primary-color); color: white; border-radius: 4px; text-decoration: none;">
                                                 View PDF
                                             </a>
                                         </td>

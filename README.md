@@ -15,6 +15,8 @@ Python Libraries:
 
 Features:
 - Role-based access (user/admin account)
+- Admin can manage users and books, including deleting book records and their uploaded files
+- Admin profile with upload, download, user addition, and user deletion history
 - upload/download book
 - favorites (coming soon)
 - update password
@@ -22,3 +24,6 @@ Features:
 - comments section (coming soon)
 
 Database Schema uploaded!
+
+For an existing database, apply `migrations/20261011_account_history.sql` before
+creating or deleting accounts, or opening the admin profile history.

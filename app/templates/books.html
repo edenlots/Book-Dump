@@ -82,7 +82,7 @@
                                     {{ book.overview[:50] }}{% if book.overview|length > 50 %}...{% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('main.view_file', filename=book.file) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
+                                    <a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
                                 </td>
                             </tr>
                             {% endfor %}

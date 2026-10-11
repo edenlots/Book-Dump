@@ -26,9 +26,9 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
-                <li><a href="{{ url_for('main.admin_books') }}">Manage Books</a></li>
-                <li><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.admin_books') }}">All Books &amp; Files</a></li>
+                <li><a href="{{ url_for('main.admin_profile') }}">Admin Profile &amp; History</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -60,8 +60,16 @@
                 <a href="{{ url_for('main.admin_users') }}" class="btn btn-primary btn-block">Manage Users</a>
             </div>
             <div class="col">
-                <a href="{{ url_for('main.admin_books') }}" class="btn btn-primary btn-block">Manage Books</a>
+                <a href="{{ url_for('main.admin_books') }}" class="btn btn-primary btn-block">Manage All Books &amp; Files</a>
             </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="card">
+            <h2>Book storage management</h2>
+            <p>View every book and permanently remove its database record and stored upload.</p>
+            <a href="{{ url_for('main.admin_books') }}" class="btn btn-outline">Open All Books</a>
         </div>
     </section>
 

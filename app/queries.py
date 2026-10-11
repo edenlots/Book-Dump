@@ -40,13 +40,29 @@ class UserQueries:
         return user
     
     @staticmethod
-    def create_user(conn, username, email, password_hash):
-        """Create a new user account"""
+    def create_user(conn, username, email, password_hash, actor_username=None):
+        """Create a user and record the account addition atomically."""
         cur = conn.cursor()
         try:
             cur.execute(
-                """INSERT INTO users (username, email, pw_hash, role) VALUES (%s, %s, %s, %s);""",
+                """
+                INSERT INTO users (username, email, pw_hash, role)
+                VALUES (%s, %s, %s, %s);
+                """,
                 (username, email, password_hash, "user")
+            )
+            cur.execute(
+                """
+                INSERT INTO account_history
+                    (action, actor_username, target_username, target_email)
+                VALUES (%s, %s, %s, %s);
+                """,
+                (
+                    "user_added",
+                    actor_username or "Self-registration",
+                    username,
+                    email,
+                ),
             )
             conn.commit()
             cur.close()
@@ -100,14 +116,32 @@ class UserQueries:
         return users
     
     @staticmethod
-    def delete_user(conn, user_id):
-        """Delete a user (admin function)"""
+    def delete_user(conn, user_id, actor_username):
+        """Record and delete a user atomically (admin function)."""
         cur = conn.cursor()
         try:
-            cur.execute("DELETE FROM users WHERE id = %s;", (user_id,))
+            cur.execute(
+                "DELETE FROM users WHERE id = %s RETURNING username, email;",
+                (user_id,),
+            )
+            deleted_user = cur.fetchone()
+            if deleted_user:
+                cur.execute(
+                    """
+                    INSERT INTO account_history
+                        (action, actor_username, target_username, target_email)
+                    VALUES (%s, %s, %s, %s);
+                    """,
+                    (
+                        "user_deleted",
+                        actor_username,
+                        deleted_user[0],
+                        deleted_user[1],
+                    ),
+                )
             conn.commit()
             cur.close()
-            return True
+            return deleted_user is not None
         except Exception as e:
             conn.rollback()
             cur.close()
@@ -144,10 +178,32 @@ class BookQueries:
     def get_book_by_id(conn, book_id):
         """Get book details by ID"""
         cur = conn.cursor()
-        cur.execute("SELECT id, title, author, file FROM books WHERE id = %s;", (book_id,))
+        cur.execute(
+            "SELECT id, title, author, file, year, genre "
+            "FROM books WHERE id = %s;",
+            (book_id,),
+        )
         book = cur.fetchone()
         cur.close()
         return book
+
+    @staticmethod
+    def get_book_file_by_id(conn, book_id):
+        """Get a book's stored file path."""
+        cur = conn.cursor()
+        cur.execute("SELECT file FROM books WHERE id = %s;", (book_id,))
+        row = cur.fetchone()
+        cur.close()
+        return row[0] if row else None
+
+    @staticmethod
+    def get_book_id_by_file(conn, file_path):
+        """Get a book ID from its stored file path."""
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM books WHERE file = %s;", (file_path,))
+        row = cur.fetchone()
+        cur.close()
+        return row[0] if row else None
     
     @staticmethod
     def add_book(conn, title, author, year, genre, language, overview, file_path):
@@ -224,17 +280,21 @@ class BookQueries:
     
     @staticmethod
     def delete_book(conn, book_id):
-        """Delete a book (admin function)"""
+        """Delete a book and return its stored file reference."""
         cur = conn.cursor()
         try:
-            cur.execute("DELETE FROM books WHERE id = %s;", (book_id,))
+            cur.execute(
+                "DELETE FROM books WHERE id = %s RETURNING file;",
+                (book_id,)
+            )
+            row = cur.fetchone()
             conn.commit()
             cur.close()
-            return True
+            return True, row[0] if row else None, None
         except Exception as e:
             conn.rollback()
             cur.close()
-            return False
+            return False, None, str(e)
 
 
 class LogQueries:
@@ -306,6 +366,21 @@ class LogQueries:
         base_query += " ORDER BY l.timestamp DESC, l.id DESC;"
 
         cur.execute(base_query, tuple(params))
+        history = cur.fetchall()
+        cur.close()
+        return history
+
+    @staticmethod
+    def get_account_history(conn):
+        """Get account addition and deletion history."""
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(
+            """
+            SELECT action, actor_username, target_username, target_email, timestamp
+            FROM account_history
+            ORDER BY timestamp DESC, id DESC;
+            """
+        )
         history = cur.fetchall()
         cur.close()
         return history

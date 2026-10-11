@@ -110,8 +110,10 @@
                 </form>
 
                 <div class="admin-link-section">
-                    <p style="margin-bottom: 0.5rem; color: var(--text-muted);">Are you an admin?</p>
-                    <a href="{{ url_for('main.admin_login') }}">Admin Login →</a>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-muted);">
+                        Administrators must use the dedicated sign-in page.
+                    </p>
+                    <a href="{{ url_for('main.admin_login') }}">Go to Admin Login →</a>
                 </div>
             </div>
         </div>

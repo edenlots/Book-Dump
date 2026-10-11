@@ -26,28 +26,36 @@
         <p><a href="{{ url_for('main.index') }}">← Back to Home</a></p>
     </header>
 
-    <!-- Admin Login Section -->
-    <section id="login">
-        <h2>Admin Login</h2>
-        <p class="text-muted">Please log in with your admin credentials</p>
-        <form action="{{ url_for('main.admin_login') }}" method="POST">
-            <div class="form-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" name="email" required>
-            </div>
+    {% if session.get('user_role') == 'admin' %}
+      <section class="container">
+        <h2>Admin account is signed in</h2>
+        <p>Continue to the dashboard or manage all books and stored files.</p>
+        <p>
+          <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-primary">Admin Dashboard</a>
+          <a href="{{ url_for('main.admin_books') }}" class="btn btn-outline">All Books</a>
+          <a href="{{ url_for('main.logout') }}" class="btn btn-outline">Logout</a>
+        </p>
+      </section>
+    {% else %}
+      <section id="login" class="container-sm">
+          <h2>Admin Login</h2>
+          <p class="text-muted">Please log in with your admin credentials</p>
+          <form action="{{ url_for('main.admin_login') }}" method="POST">
+              <div class="form-group">
+                  <label for="login-email">Email:</label>
+                  <input type="email" id="login-email" name="email" required>
+              </div>
 
-            <div class="form-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" name="password" required>
-            </div>
+              <div class="form-group">
+                  <label for="login-password">Password:</label>
+                  <input type="password" id="login-password" name="password" required>
+              </div>
 
-            <button type="submit" class="btn-primary">Admin Login</button>
-        </form>
-    </section>
-
-    <section id="login">
-      <p>Not an admin? Go to <a href="{{ url_for('main.login') }}">User Login</a>.</p>
-    </section>
+              <button type="submit" class="btn-primary">Admin Login</button>
+          </form>
+          <p>Not an admin? Go to <a href="{{ url_for('main.login') }}">User Login</a>.</p>
+      </section>
+    {% endif %}
 
     <script>
   // Automatically remove flash messages after fadeout

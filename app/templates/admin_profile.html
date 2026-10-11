@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../static/styles.css">
+    <title>Admin Profile - Book Dumps</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <header>
+        <h1>👤 Admin Profile &amp; Activity History</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.admin_dashboard') }}">Admin Dashboard</a></li>
+                <li><a href="{{ url_for('main.admin_books') }}">All Books &amp; Files</a></li>
+                <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container-lg">
+        <section class="card">
+            <h2>Admin Account</h2>
+            <p><strong>Name:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Role:</strong> Administrator</p>
+        </section>
+
+        <section>
+            <h2>📤 Upload History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr><th>Book</th><th>Author</th><th>Date Uploaded</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in uploads %}
+                            <tr>
+                                <td>
+                                    {% if item.book_id %}
+                                        <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                    {% else %}
+                                        {{ item.title or 'Book removed' }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.author or '—' }}</td>
+                                <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') if item.timestamp else '—' }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="3" class="text-center text-muted">No uploads recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>📥 Download History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr><th>Book</th><th>Author</th><th>Date Downloaded</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in downloads %}
+                            <tr>
+                                <td>
+                                    {% if item.book_id %}
+                                        <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                    {% else %}
+                                        {{ item.title or 'Book removed' }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.author or '—' }}</td>
+                                <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') if item.timestamp else '—' }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="3" class="text-center text-muted">No downloads recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>👥 User Addition &amp; Deletion History</h2>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Performed By</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in account_history %}
+                            <tr>
+                                <td>
+                                    {% if item.action == 'user_added' %}User added{% else %}User deleted{% endif %}
+                                </td>
+                                <td>{{ item.actor_username }}</td>
+                                <td>{{ item.target_username }}</td>
+                                <td>{{ item.target_email }}</td>
+                                <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') if item.timestamp else '—' }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="5" class="text-center text-muted">No user changes recorded.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-message");
+            setTimeout(() => flashes.forEach(message => message.remove()), 6000);
+        });
+    </script>
+</body>
+</html>

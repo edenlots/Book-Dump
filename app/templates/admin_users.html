@@ -28,13 +28,33 @@
                 <li><a href="{{ url_for('main.admin_dashboard') }}">← Admin Dashboard</a></li>
                 <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
                 <li><a href="{{ url_for('main.admin_books') }}">Manage Books</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.admin_profile') }}">Admin Profile &amp; History</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
     <!-- Users Management Section -->
     <section class="container-lg">
+        <div class="card">
+            <h2>Add User</h2>
+            <form method="POST" action="{{ url_for('main.admin_add_user') }}">
+                <div class="form-group">
+                    <label for="new-username">Username</label>
+                    <input type="text" id="new-username" name="username" maxlength="80" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-email">Email</label>
+                    <input type="email" id="new-email" name="email" maxlength="120" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Temporary password</label>
+                    <input type="password" id="new-password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add User</button>
+            </form>
+        </div>
+
         <h2>All Users</h2>
         
         {% if users %}
