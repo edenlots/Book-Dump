@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
-    <title>Book Search - Book Dumps</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Search Books - Book Dumps</title>
 </head>
 <body>
-    <!-- Flash Message Display -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div id="flash-container">
           {% for category, message in messages %}
-            <div class="flash-message {{ category }}">
-              {{ message }}
-            </div>
+            <div class="flash-message {{ category }}">{{ message }}</div>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
 
-    <!-- Header -->
     <header>
         <h1>🔍 Search Books</h1>
         <nav>
@@ -28,38 +24,76 @@
                 <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
                 <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books</a></li>
-                <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
                 <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
 
-    <div class="container">
-        <!-- Search Form Card -->
-        <div class="card mt-4">
+    <main class="container">
+        <section class="card mt-4" aria-labelledby="search-heading">
             <div class="card-header">
-                <h2>What book are you looking for?</h2>
+                <h2 id="search-heading">Find a book</h2>
+                <p class="text-muted">Search by keyword, or narrow results with specific fields.</p>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('main.search') }}" method="get" class="search-bar">
-                    <input type="text" name="q" value="{{ query or '' }}" placeholder="Search by title, author, genre..." />
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </form>
-                <p class="text-center text-muted mt-2">
-                    💡 <a href="{{ url_for('main.advanced') }}">Try Advanced Search</a> for more filter options
-                </p>
-            </div>
-        </div>
+                <form action="{{ url_for('main.search') }}" method="get">
+                    <div class="form-group">
+                        <label for="query">Keyword</label>
+                        <input
+                            type="search"
+                            id="query"
+                            name="q"
+                            value="{{ query }}"
+                            placeholder="Title, author, genre, year, or language"
+                        >
+                    </div>
 
-        <!-- Search Results Section -->
-        {% if query %}
-        <div class="mt-4">
-            <h2>Results for "{{ query }}"</h2>
-            
+                    <details {% if filters.values()|select|list %}open{% endif %}>
+                        <summary>Filter by specific fields</summary>
+                        <div class="row mt-2">
+                            <div class="col-50 form-group">
+                                <label for="title">Title</label>
+                                <input type="text" id="title" name="title" value="{{ filters.title }}" placeholder="Book title">
+                            </div>
+                            <div class="col-50 form-group">
+                                <label for="author">Author</label>
+                                <input type="text" id="author" name="author" value="{{ filters.author }}" placeholder="Author name">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-50 form-group">
+                                <label for="year">Year published</label>
+                                <input type="number" id="year" name="year" value="{{ filters.year }}" placeholder="e.g. 2023">
+                            </div>
+                            <div class="col-50 form-group">
+                                <label for="genre">Genre</label>
+                                <input type="text" id="genre" name="genre" value="{{ filters.genre }}" placeholder="e.g. Fiction">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="language">Language</label>
+                            <input type="text" id="language" name="language" value="{{ filters.language }}" placeholder="e.g. English">
+                        </div>
+                    </details>
+
+                    <div class="search-actions">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        {% if search_performed %}
+                            <a href="{{ url_for('main.search') }}" class="btn btn-secondary">Clear search</a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        {% if search_performed %}
+        <section class="mt-4" aria-labelledby="results-heading">
+            <h2 id="results-heading">Search Results</h2>
+            <p class="text-muted">Found {{ results|length }} book(s)</p>
             {% if results %}
-                <div class="search-results">
+                <div class="table-responsive">
                     <table class="table">
                         <thead>
                             <tr>
@@ -76,12 +110,10 @@
                             <tr>
                                 <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}"><strong>{{ book[1] }}</strong></a></td>
                                 <td>{{ book[2] }}</td>
-                                <td>{{ book[3] }}</td>
-                                <td><span class="badge badge-primary">{{ book[4] }}</span></td>
-                                <td>{{ book[5] }}</td>
-                                <td>
-                                    <a href="{{ url_for('main.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a>
-                                </td>
+                                <td>{{ book[3] or '—' }}</td>
+                                <td><span class="badge badge-primary">{{ book[4] or '—' }}</span></td>
+                                <td>{{ book[5] or '—' }}</td>
+                                <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -90,50 +122,43 @@
             {% else %}
                 <div class="card bg-light">
                     <p class="text-center text-muted" style="padding: 2rem;">
-                        😔 No books found for "{{ query }}". <br>
-                        <a href="{{ url_for('main.advanced') }}">Try Advanced Search</a> or refine your keywords.
+                        No books match those search terms. Try changing or clearing some filters.
                     </p>
                 </div>
             {% endif %}
-        </div>
+        </section>
         {% else %}
         <div class="card mt-4 bg-light">
             <h3 class="text-center">📚 Start Searching</h3>
             <p class="text-center text-muted">
-                Type a keyword in the search box above (e.g., book title, author name, genre, or year)<br>
-                and click <strong>Search</strong> to find books.
+                Enter a keyword or open the field filters above to search the catalogue.
             </p>
         </div>
         {% endif %}
-    </div>
+    </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const flashes = document.querySelectorAll(".flash-message");
-            setTimeout(() => {
-                flashes.forEach(msg => msg.remove());
-            }, 6000);
+            setTimeout(() => flashes.forEach(message => message.remove()), 6000);
         });
     </script>
-
     <style>
-        .search-bar {
+        .search-actions {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
         }
 
-        .search-bar input {
-            flex: 1;
-            min-width: 250px;
+        .table-responsive {
+            overflow-x: auto;
         }
 
-        @media (max-width: 768px) {
-            .search-bar {
-                flex-direction: column;
-            }
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
         }
     </style>
-
 </body>
 </html>

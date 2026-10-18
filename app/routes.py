@@ -314,31 +314,43 @@ def search():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
         return redirect(url_for("auth.login"))
-    
-    query = request.args.get("q", "").strip()
-    conn = current_app.get_db()
-    results = BookQueries.search_books(conn, query)
 
-    return render_template("search.html", query=query, results=results)
+    query = request.args.get("q", "").strip()
+    filters = {
+        "title": request.args.get("title", "").strip(),
+        "author": request.args.get("author", "").strip(),
+        "year": request.args.get("year", "").strip(),
+        "genre": request.args.get("genre", "").strip(),
+        "language": request.args.get("language", "").strip(),
+    }
+    search_performed = bool(query or any(filters.values()))
+    conn = current_app.get_db()
+    results = (
+        BookQueries.search_catalog(conn, query=query, **filters)
+        if search_performed
+        else []
+    )
+
+    return render_template(
+        "search.html",
+        query=query,
+        filters=filters,
+        search_performed=search_performed,
+        results=results,
+    )
+
 
 @bp.route("/advanced", methods=["GET", "POST"])
-def advanced():
+def advanced_search_redirect():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
         return redirect(url_for("auth.login"))
-    
-    results = []
-    if request.method == "POST":
-        title = request.form.get("title", "")
-        author = request.form.get("author", "")
-        year = request.form.get("year", "")
-        genre = request.form.get("genre", "")
-        language = request.form.get("language", "")
 
-        conn = current_app.get_db()
-        results = BookQueries.advanced_search(conn, title, author, year, genre, language)
-
-    return render_template("advanced.html", results=results)
+    filters = {
+        name: request.values.get(name, "").strip()
+        for name in ("title", "author", "year", "genre", "language")
+    }
+    return redirect(url_for("main.search", **filters))
 
 
 @bp.route("/logout")

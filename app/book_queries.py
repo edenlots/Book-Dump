@@ -109,55 +109,66 @@ class BookQueries:
     @staticmethod
     def search_books(conn, query):
         """Search books by query (title, author, genre, year, language)"""
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT id, title, author, year, genre, language
-            FROM books
-            WHERE 
-                title ILIKE %s OR
-                author ILIKE %s OR
-                genre ILIKE %s OR
-                CAST(year AS TEXT) ILIKE %s OR
-                language ILIKE %s
-            ORDER BY title;
-        """, (f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"))
-        
-        results = cur.fetchall()
-        cur.close()
-        return results
-    
+        return BookQueries.search_catalog(conn, query=query)
+
     @staticmethod
-    def advanced_search(conn, title="", author="", year="", genre="", language=""):
-        """Advanced search with multiple filters"""
+    def search_catalog(
+        conn, query="", title="", author="", year="", genre="", language=""
+    ):
+        """Search books by a keyword and any combination of field filters."""
         filters = []
         values = []
 
-        if title:
-            filters.append("title ILIKE %s")
-            values.append(f"%{title}%")
-        if author:
-            filters.append("author ILIKE %s")
-            values.append(f"%{author}%")
-        if year:
-            filters.append("CAST(year AS TEXT) ILIKE %s")
-            values.append(f"%{year}%")
-        if genre:
-            filters.append("genre ILIKE %s")
-            values.append(f"%{genre}%")
-        if language:
-            filters.append("language ILIKE %s")
-            values.append(f"%{language}%")
+        if query:
+            filters.append(
+                """
+                (
+                    title ILIKE %s OR
+                    author ILIKE %s OR
+                    genre ILIKE %s OR
+                    CAST(year AS TEXT) ILIKE %s OR
+                    language ILIKE %s
+                )
+                """
+            )
+            values.extend([f"%{query}%"] * 5)
 
-        query = "SELECT id, title, author, year, genre, language FROM books"
+        for column, value in (
+            ("title", title),
+            ("author", author),
+            ("year", year),
+            ("genre", genre),
+            ("language", language),
+        ):
+            if value:
+                if column == "year":
+                    filters.append("CAST(year AS TEXT) ILIKE %s")
+                else:
+                    filters.append(f"{column} ILIKE %s")
+                values.append(f"%{value}%")
+
+        sql = "SELECT id, title, author, year, genre, language FROM books"
         if filters:
-            query += " WHERE " + " AND ".join(filters)
-        query += " ORDER BY title;"
+            sql += " WHERE " + " AND ".join(filters)
+        sql += " ORDER BY title;"
 
         cur = conn.cursor()
-        cur.execute(query, tuple(values))
+        cur.execute(sql, tuple(values))
         results = cur.fetchall()
         cur.close()
         return results
+
+    @staticmethod
+    def advanced_search(conn, title="", author="", year="", genre="", language=""):
+        """Advanced search with multiple filters"""
+        return BookQueries.search_catalog(
+            conn,
+            title=title,
+            author=author,
+            year=year,
+            genre=genre,
+            language=language,
+        )
     
     @staticmethod
     def delete_book(conn, book_id):

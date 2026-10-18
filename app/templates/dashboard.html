@@ -28,7 +28,7 @@
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
                 <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
+                <li><a href="{{ url_for('main.search') }}">Search Books</a></li>
                 <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
                 <li><a href="{{ url_for('main.index') }}">Logout</a></li>
             </ul>
@@ -133,7 +133,7 @@
                     <a href="{{ url_for('main.books') }}" class="btn btn-secondary btn-block">📚 All Books</a>
                 </div>
                 <div class="col-33">
-                    <a href="{{ url_for('main.advanced') }}" class="btn btn-secondary btn-block">🔎 Advanced Search</a>
+                    <a href="{{ url_for('main.search') }}" class="btn btn-secondary btn-block">🔎 Search Books</a>
                 </div>
             </div>
         </div>
