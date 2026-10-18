@@ -13,12 +13,13 @@
         <nav>
             <ul>
                 {% if session.get('user_role') == 'admin' %}
-                    <li><a href="{{ url_for('main.admin_dashboard') }}">← Admin Dashboard</a></li>
-                    <li><a href="{{ url_for('main.admin_books') }}">All Books</a></li>
-                    <li><a href="{{ url_for('main.admin_profile') }}">Admin Profile</a></li>
+                    <li><a href="{{ url_for('admin.admin_dashboard') }}">← Admin Dashboard</a></li>
+                    <li><a href="{{ url_for('admin.admin_books') }}">All Books</a></li>
+                    <li><a href="{{ url_for('admin.admin_profile') }}">Admin Profile</a></li>
                 {% else %}
                     <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
                     <li><a href="{{ url_for('main.books') }}">All Books</a></li>
+                    <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
                     <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
                     <li><a href="{{ url_for('main.search') }}">Search</a></li>
                 {% endif %}
@@ -26,6 +27,16 @@
             </ul>
         </nav>
     </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <div class="container-lg">
         <!-- Book Details Card -->
@@ -76,8 +87,20 @@
         <div class="card mt-4">
             <div class="card-body" style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <a href="{{ url_for('main.book_file', book_id=book[0], download=1) }}" class="btn btn-primary">⬇️ Download PDF</a>
+                {% if session.get('user_id') and session.get('user_role') != 'admin' %}
+                    <form action="{{ url_for('main.favorite_book', book_id=book[0]) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% if is_favorite %}
+                            <input type="hidden" name="action" value="remove">
+                            <button type="submit" class="btn btn-secondary">Remove from Saved Books</button>
+                        {% else %}
+                            <input type="hidden" name="action" value="save">
+                            <button type="submit" class="btn btn-secondary">Save to My Bookshelf</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
                 {% if session.get('user_role') == 'admin' %}
-                    <a href="{{ url_for('main.admin_books') }}" class="btn btn-secondary">← Back to Books</a>
+                    <a href="{{ url_for('admin.admin_books') }}" class="btn btn-secondary">← Back to Books</a>
                 {% else %}
                     <a href="{{ url_for('main.books') }}" class="btn btn-secondary">← Back to Books</a>
                 {% endif %}

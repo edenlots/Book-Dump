@@ -25,9 +25,9 @@
         <h1>🔐 Admin Dashboard</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
-                <li><a href="{{ url_for('main.admin_books') }}">All Books &amp; Files</a></li>
-                <li><a href="{{ url_for('main.admin_profile') }}">Admin Profile &amp; History</a></li>
+                <li><a href="{{ url_for('admin.admin_users') }}">Manage Users</a></li>
+                <li><a href="{{ url_for('admin.admin_books') }}">All Books &amp; Files</a></li>
+                <li><a href="{{ url_for('admin.admin_profile') }}">Admin Profile &amp; History</a></li>
                 <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
             </ul>
         </nav>
@@ -57,10 +57,10 @@
         <h2>Quick Actions</h2>
         <div class="row">
             <div class="col">
-                <a href="{{ url_for('main.admin_users') }}" class="btn btn-primary btn-block">Manage Users</a>
+                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-primary btn-block">Manage Users</a>
             </div>
             <div class="col">
-                <a href="{{ url_for('main.admin_books') }}" class="btn btn-primary btn-block">Manage All Books &amp; Files</a>
+                <a href="{{ url_for('admin.admin_books') }}" class="btn btn-primary btn-block">Manage All Books &amp; Files</a>
             </div>
         </div>
     </section>
@@ -69,7 +69,7 @@
         <div class="card">
             <h2>Book storage management</h2>
             <p>View every book and permanently remove its database record and stored upload.</p>
-            <a href="{{ url_for('main.admin_books') }}" class="btn btn-outline">Open All Books</a>
+            <a href="{{ url_for('admin.admin_books') }}" class="btn btn-outline">Open All Books</a>
         </div>
     </section>
 
@@ -102,14 +102,14 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ url_for('main.admin_users') }}" class="btn btn-small btn-outline">Manage</a>
+                                <a href="{{ url_for('admin.admin_users') }}" class="btn btn-small btn-outline">Manage</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <p class="text-center"><a href="{{ url_for('main.admin_users') }}">View All Users →</a></p>
+            <p class="text-center"><a href="{{ url_for('admin.admin_users') }}">View All Users →</a></p>
         {% else %}
             <p class="no-results">No users found</p>
         {% endif %}
@@ -140,14 +140,14 @@
                             <td>{{ book.genre }}</td>
                             <td>{{ book.year }}</td>
                             <td>
-                                <a href="{{ url_for('main.admin_books') }}" class="btn btn-small btn-outline">Manage</a>
+                                <a href="{{ url_for('admin.admin_books') }}" class="btn btn-small btn-outline">Manage</a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <p class="text-center"><a href="{{ url_for('main.admin_books') }}">View All Books →</a></p>
+            <p class="text-center"><a href="{{ url_for('admin.admin_books') }}">View All Books →</a></p>
         {% else %}
             <p class="no-results">No books found</p>
         {% endif %}

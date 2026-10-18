@@ -101,6 +101,7 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Back to Profile</a></li>
             </ul>
         </nav>
@@ -114,6 +115,7 @@
             </div>
             <div class="card-body">
                 <form method="POST" enctype="multipart/form-data" id="upload-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="upload-zone" id="upload-zone">
                         <h3>📁 Upload Your Picture</h3>
                         <p>Drag and drop your image here, or click to select</p>

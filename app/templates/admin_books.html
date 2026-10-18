@@ -25,10 +25,10 @@
         <h1>📚 Manage Books</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.admin_dashboard') }}">← Admin Dashboard</a></li>
-                <li><a href="{{ url_for('main.admin_users') }}">Manage Users</a></li>
-                <li><a href="{{ url_for('main.admin_profile') }}">Admin Profile &amp; History</a></li>
-                <li><a href="{{ url_for('main.admin_books') }}">All Books &amp; Files</a></li>
+                <li><a href="{{ url_for('admin.admin_dashboard') }}">← Admin Dashboard</a></li>
+                <li><a href="{{ url_for('admin.admin_users') }}">Manage Users</a></li>
+                <li><a href="{{ url_for('admin.admin_profile') }}">Admin Profile &amp; History</a></li>
+                <li><a href="{{ url_for('admin.admin_books') }}">All Books &amp; Files</a></li>
                 <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
             </ul>
         </nav>
@@ -81,7 +81,8 @@
                             </td>
                             <td>
                                 <!-- Delete Form -->
-                                <form method="POST" action="{{ url_for('main.admin_delete_book', book_id=book.id) }}" style="display: inline;" onsubmit="return confirm('Permanently delete this book from the database and remove its stored upload? This action cannot be undone.');">
+                                <form method="POST" action="{{ url_for('admin.admin_delete_book', book_id=book.id) }}" style="display: inline;" onsubmit="return confirm('Permanently delete this book from the database and remove its stored upload? This action cannot be undone.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="btn btn-small btn-danger">Delete</button>
                                 </form>
                             </td>

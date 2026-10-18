@@ -26,6 +26,7 @@
         <nav>
             <ul>
                 <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
+                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
                 <li><a href="{{ url_for('main.advanced') }}">Advanced Search</a></li>
                 <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
@@ -56,7 +57,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="profile-card-button-wrap">
-                                    <a href="{{ url_for('main.profile') }}" class="btn btn-primary">View Full Profile</a>
+                                    <a href="{{ url_for('main.profile') }}" class="btn btn-primary">View Profile</a>
                                 </div>
                             </div>
 
@@ -164,7 +165,7 @@
                                 <td><span class="badge badge-primary">{{ book.genre }}</span></td>
                                 <td>{{ book.language }}</td>
                                 <td title="{{ book.overview }}">
-                                    {{ book.overview[:50] }}{% if book.overview|length > 50 %}...{% endif %}
+                                    {{ (book.overview or '')[:50] }}{% if (book.overview or '')|length > 50 %}...{% endif %}
                                 </td>
                                 <td>
                                     <a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>

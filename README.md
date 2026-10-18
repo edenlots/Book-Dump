@@ -46,11 +46,6 @@ No frontend framework or JavaScript package is currently used.
 - Audit history for role changes, book deletions, and other admin actions
 - Bulk import/export and backup/restore tools
 - Automated tests, CI checks, and a documented production deployment setup
-- CSRF protection and configurable upload size/type limits
+- Configurable upload size/type limits
 
 
-Start the application with:
-
-```powershell
-python run.py
-```

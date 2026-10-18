@@ -66,7 +66,8 @@
                 </div>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('main.signup') }}" method="POST">
+                <form action="{{ url_for('auth.signup') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label for="signup-name">Full Name</label>
                         <input type="text" id="signup-name" name="name" required placeholder="John Doe">
@@ -93,7 +94,7 @@
         <!-- Login Link -->
         <div style="text-align: center; margin-top: 2rem;">
             <p style="color: var(--text-muted);">Already have an account? 
-                <a href="{{ url_for('main.login') }}" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Sign in here</a>
+                <a href="{{ url_for('auth.login') }}" style="color: var(--primary-color); text-decoration: none; font-weight: 500;">Sign in here</a>
             </p>
         </div>
 
