@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, request, jsonify, current_app, flash, redirect, url_for, session, send_from_directory
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import dotenv
 
-from .queries import UserQueries, BookQueries, LogQueries
+from .book_queries import BookQueries
+from .log_queries import LogQueries
+from .user_queries import UserQueries
 
 bp = Blueprint("main", __name__)
 ALLOWED_EXTENSIONS = set(dotenv.dotenv_values().get("ALLOWED_EXTENSIONS", "pdf,png,jpg,jpeg").split(","))
@@ -18,132 +20,15 @@ def index():
     # books is a list of DictRows, Jinja can handle dict-style access
     return render_template("index.html")
 
-@bp.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        conn = current_app.get_db()
-        user = UserQueries.get_user_by_email(conn, email)
-
-        if user:
-            # check password hash
-            if check_password_hash(user[3], password):
-                if user[4] == "admin":
-                    flash(
-                        "Administrators must sign in through the Admin Login page.",
-                        "warning",
-                    )
-                    return redirect(url_for("main.admin_login"))
-
-                session["user_id"] = user[0]   # store logged-in user ID
-                session["user_name"] = user[1]
-                session["user_role"] = user[4]
-                flash("Login successful!", "success")
-                return redirect(url_for("main.dashboard"))
-            else:
-                flash("Incorrect password.", "danger")
-        else:
-            flash("Email or user not found.", "danger")
-    return render_template("login.html")
-
-@bp.route("/admin_login", methods=["GET", "POST"])
-def admin_login():
-    if session.get("user_role") == "admin":
-        return redirect(url_for("main.admin_dashboard"))
-
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        conn = current_app.get_db()
-        user = UserQueries.get_user_by_email(conn, email)
-
-        if user and user[4] == "admin":  # Check if role is 'admin'
-            # check password hash
-            if check_password_hash(user[3], password):
-                session["user_id"] = user[0]
-                session["user_name"] = user[1]
-                session["user_role"] = user[4]
-                flash("Admin login successful!", "success")
-                return redirect(url_for("main.admin_dashboard"))
-            else:
-                flash("Incorrect password.", "danger")
-        else:
-            flash("Admin account not found or insufficient permissions.", "danger")
-    
-    return render_template("adminlogin.html")
-
-@bp.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
-
-        # hash password (never store plain text passwords!)
-        hashed_pw = generate_password_hash(password)
-
-        # connect to DB
-        conn = current_app.get_db()
-        actor_username = (
-            session.get("user_name")
-            if session.get("user_role") == "admin"
-            else None
-        )
-        success, error = UserQueries.create_user(
-            conn, name, email, hashed_pw, actor_username
-        )
-
-        if success:
-            flash("Signup successful! Please log in.", "success")
-        else:
-            flash("Error: " + error, "danger")
-
-        return redirect(url_for("main.index"))  # redirect after signup
-    return render_template("signup.html")
-
-@bp.route("/update_password", methods=["GET", "POST"])
-def update_password():
-    if request.method == "POST":
-        password = request.form.get("current_password")
-        new_password = request.form.get("new_password")
-
-        conn = current_app.get_db()
-        user = UserQueries.get_user_by_id(conn, session["user_id"])
-
-        if user:
-            # check password hash
-            if check_password_hash(user[3] if isinstance(user, tuple) else user['pw_hash'], password):
-                hashed_new_password = generate_password_hash(new_password)
-                success = UserQueries.update_password(conn, session["user_id"], hashed_new_password)
-                
-                if success:
-                    flash("Update password successful!", "success")
-                    return redirect(url_for("main.profile"))
-                else:
-                    flash("Error updating password.", "danger")
-            else:
-                flash("Wrong password. Please use the correct active password.", "danger")
-        else:
-            flash("Invalid Account.", "danger")
-    
-    conn = current_app.get_db()
-    user = UserQueries.get_user_profile(conn, session.get("user_id"))
-    user_data = {"username": user[0], "email": user[1], "picture": user[2]} if user else None
-    return render_template("profile.html", user=user_data)
-
-
 @bp.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     conn = current_app.get_db()
     user = UserQueries.get_user_by_id(conn, session["user_id"])
-    books = BookQueries.get_all_books(conn)
+    books = BookQueries.get_user_bookshelf(conn, session["user_id"])
     recent_activities = LogQueries.get_recent_user_logs(conn, session["user_id"], 3)
 
     return render_template(
@@ -155,12 +40,28 @@ def dashboard():
         recent_activities=recent_activities
     )
 
+@bp.route("/bookshelf")
+def bookshelf():
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    conn = current_app.get_db()
+    uploaded_books = BookQueries.get_user_uploaded_books(conn, user_id)
+    favorite_books = LogQueries.get_user_favorite_books(conn, user_id)
+    return render_template(
+        "bookshelf.html",
+        uploaded_books=uploaded_books,
+        favorite_books=favorite_books,
+    )
+
 @bp.route("/profile")
 def profile():
     user_id = session.get("user_id")
     if not user_id:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
 
     conn = current_app.get_db()
     user = UserQueries.get_user_profile(conn, user_id)
@@ -181,7 +82,7 @@ def profile():
 def profile_picture():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     if request.method == "POST":
         picture = request.files.get("picture")
@@ -215,7 +116,7 @@ def profile_picture():
 def books():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     conn = current_app.get_db()
     books_data = BookQueries.get_all_books(conn)
@@ -229,7 +130,39 @@ def bookview(book_id):
 
     if not book:
         return "Book not found", 404
-    return render_template("bookview.html", book=book)
+    user_id = session.get("user_id")
+    is_favorite = (
+        BookQueries.is_book_favorite(conn, user_id, book_id)
+        if user_id
+        else False
+    )
+    return render_template("bookview.html", book=book, is_favorite=is_favorite)
+
+
+@bp.route("/books/<int:book_id>/favorite", methods=["POST"])
+def favorite_book(book_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Please log in first.", "warning")
+        return redirect(url_for("auth.login"))
+
+    conn = current_app.get_db()
+    if not BookQueries.get_book_by_id(conn, book_id):
+        return "Book not found", 404
+
+    action = request.form.get("action")
+    if action == "save":
+        LogQueries.save_favorite(conn, user_id, book_id)
+        flash("Book saved to your bookshelf.", "success")
+    elif action == "remove":
+        LogQueries.remove_favorite(conn, user_id, book_id)
+        flash("Book removed from your saved books.", "success")
+    else:
+        flash("Invalid bookshelf action.", "danger")
+
+    if request.form.get("return_to") == "bookshelf":
+        return redirect(url_for("main.bookshelf"))
+    return redirect(url_for("main.bookview", book_id=book_id))
 
 
 def _get_upload_filename(file_reference):
@@ -316,7 +249,7 @@ def view_file(filename):
 def upload():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     conn = current_app.get_db()
     user = UserQueries.get_user_by_id(conn, session["user_id"])
@@ -380,7 +313,7 @@ def upload():
 def search():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     query = request.args.get("q", "").strip()
     conn = current_app.get_db()
@@ -392,7 +325,7 @@ def search():
 def advanced():
     if "user_id" not in session:
         flash("Please log in first.", "warning")
-        return redirect(url_for("main.login"))
+        return redirect(url_for("auth.login"))
     
     results = []
     if request.method == "POST":
@@ -406,211 +339,6 @@ def advanced():
         results = BookQueries.advanced_search(conn, title, author, year, genre, language)
 
     return render_template("advanced.html", results=results)
-
-
-# ==================== ADMIN ROUTES ====================
-
-@bp.route("/admin_dashboard")
-def admin_dashboard():
-    """Admin dashboard - view all users and books"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    conn = current_app.get_db()
-    users = UserQueries.get_all_users(conn)
-    books = BookQueries.get_all_books(conn)
-    
-    return render_template("admin_dashboard.html", users=users, books=books)
-
-
-@bp.route("/admin/profile")
-def admin_profile():
-    """Show the admin account and its activity history."""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.admin_login"))
-
-    conn = current_app.get_db()
-    user = UserQueries.get_user_profile(conn, session["user_id"])
-    if not user:
-        session.clear()
-        flash("Admin account not found. Please log in again.", "danger")
-        return redirect(url_for("main.admin_login"))
-
-    uploads = LogQueries.get_user_activity_history(
-        conn, session["user_id"], "uploaded"
-    )
-    downloads = LogQueries.get_user_activity_history(
-        conn, session["user_id"], "downloaded"
-    )
-    account_history = LogQueries.get_account_history(conn)
-    user_data = {"username": user[0], "email": user[1], "picture": user[2]}
-
-    return render_template(
-        "admin_profile.html",
-        user=user_data,
-        uploads=uploads,
-        downloads=downloads,
-        account_history=account_history,
-    )
-
-
-@bp.route("/admin/users")
-def admin_users():
-    """Manage users"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    conn = current_app.get_db()
-    users = UserQueries.get_all_users(conn)
-    
-    return render_template("admin_users.html", users=users)
-
-
-@bp.route("/admin/users/add", methods=["POST"])
-def admin_add_user():
-    """Create a user from the admin user-management page."""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.admin_login"))
-
-    username = request.form.get("username", "").strip()
-    email = request.form.get("email", "").strip()
-    password = request.form.get("password", "")
-    if not username or not email or not password:
-        flash("Username, email, and password are required.", "warning")
-        return redirect(url_for("main.admin_users"))
-
-    conn = current_app.get_db()
-    success, error = UserQueries.create_user(
-        conn,
-        username,
-        email,
-        generate_password_hash(password),
-        session.get("user_name", "Administrator"),
-    )
-    if success:
-        flash(f"User {username} added successfully.", "success")
-    else:
-        current_app.logger.error("Admin user creation failed: %s", error)
-        flash("Could not add user. Check the details and try again.", "danger")
-    return redirect(url_for("main.admin_users"))
-
-
-@bp.route("/admin/users/<int:user_id>/delete", methods=["POST"])
-def admin_delete_user(user_id):
-    """Delete a user"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    if session["user_id"] == user_id:
-        flash("Cannot delete your own account.", "warning")
-        return redirect(url_for("main.admin_users"))
-    
-    conn = current_app.get_db()
-    success = UserQueries.delete_user(
-        conn, user_id, session.get("user_name", "Administrator")
-    )
-    
-    if success:
-        flash("User deleted successfully!", "success")
-    else:
-        flash("Error deleting user.", "danger")
-    
-    return redirect(url_for("main.admin_users"))
-
-
-@bp.route("/admin/users/<int:user_id>/role", methods=["POST"])
-def admin_update_user_role(user_id):
-    """Update user role (admin/user)"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    new_role = request.form.get("role")
-    if new_role not in ["admin", "user"]:
-        flash("Invalid role.", "danger")
-        return redirect(url_for("main.admin_users"))
-    
-    conn = current_app.get_db()
-    success = UserQueries.update_user_role(conn, user_id, new_role)
-    
-    if success:
-        flash(f"User role updated to {new_role}!", "success")
-    else:
-        flash("Error updating user role.", "danger")
-    
-    return redirect(url_for("main.admin_users"))
-
-
-@bp.route("/admin/books")
-def admin_books():
-    """Manage books"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    conn = current_app.get_db()
-    books = BookQueries.get_all_books(conn)
-    
-    return render_template("admin_books.html", books=books)
-
-
-@bp.route("/admin/books/<int:book_id>/delete", methods=["POST"])
-def admin_delete_book(book_id):
-    """Delete a book"""
-    if "user_id" not in session or session.get("user_role") != "admin":
-        flash("Admin access required.", "danger")
-        return redirect(url_for("main.login"))
-    
-    conn = current_app.get_db()
-    success, file_path, error = BookQueries.delete_book(conn, book_id)
-    
-    if success:
-        if file_path:
-            file_ref = PurePosixPath(str(file_path).replace("\\", "/"))
-            if (
-                len(file_ref.parts) != 3
-                or file_ref.parts[:2] != ("static", "uploads")
-                or file_ref.name in ("", ".", "..")
-            ):
-                current_app.logger.error(
-                    "Book %s was deleted from the database, but its file reference "
-                    "is outside the managed uploads directory: %r",
-                    book_id,
-                    file_path,
-                )
-                flash(
-                    "Book record deleted, but its stored file was not removed "
-                    "because its path is outside the uploads directory.",
-                    "warning",
-                )
-                return redirect(url_for("main.admin_books"))
-
-
-            stored_file = Path(current_app.root_path) / "static" / "uploads" / file_ref.name
-            try:
-                stored_file.unlink(missing_ok=True)
-            except OSError:
-                current_app.logger.exception(
-                    "Could not remove stored file for deleted book %s", book_id
-                )
-                flash(
-                    "Book record deleted, but its stored file could not be removed. "
-                    "Check the application logs.",
-                    "danger",
-                )
-                return redirect(url_for("main.admin_books"))
-
-        flash("Book and stored file deleted successfully!", "success")
-    else:
-        current_app.logger.error("Could not delete book %s: %s", book_id, error)
-        flash("Error deleting book from the database.", "danger")
-    
-    return redirect(url_for("main.admin_books"))
 
 
 @bp.route("/logout")
