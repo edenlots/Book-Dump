@@ -8,6 +8,13 @@ from .user_queries import UserQueries
 bp = Blueprint("auth", __name__)
 
 
+@bp.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("main.index"))
+
+
 @bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -30,7 +37,7 @@ def login():
                 session["user_name"] = user[1]
                 session["user_role"] = user[4]
                 flash("Login successful!", "success")
-                return redirect(url_for("main.dashboard"))
+                return redirect(url_for("book.dashboard"))
             flash("Incorrect password.", "danger")
         else:
             flash("Email or user not found.", "danger")

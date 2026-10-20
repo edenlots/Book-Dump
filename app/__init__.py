@@ -65,8 +65,9 @@ def create_app():
 
     app.get_db = get_db
 
-    from . import admin_routes, auth_routes, routes  # noqa: after app ready
+    from . import admin_routes, auth_routes, book_routes, routes  # noqa: after app ready
     app.register_blueprint(routes.bp)
+    app.register_blueprint(book_routes.bp)
     app.register_blueprint(admin_routes.bp)
     app.register_blueprint(auth_routes.bp)
 
