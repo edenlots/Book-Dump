@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>User Profile - Book Dumps</title>
 </head>
 <body>
@@ -25,12 +25,12 @@
         <h1>👤 My Profile</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
-                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('book.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('book.bookshelf') }}">My Bookshelf</a></li>
+                <li><a href="{{ url_for('book.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('book.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('book.search') }}">Search</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -109,7 +109,7 @@
                                 <tr>
                                     <td>
                                         {% if item.book_id %}
-                                            <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                            <a href="{{ url_for('book.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
                                         {% else %}
                                             {{ item.title or 'Book removed' }}
                                         {% endif %}
@@ -124,7 +124,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
-                                    No uploads yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
+                                    No uploads yet. <a href="{{ url_for('book.upload') }}">Upload your first book</a>!
                                 </td>
                             </tr>
                         {% endif %}
@@ -154,7 +154,7 @@
                                 <tr>
                                     <td>
                                         {% if item.book_id %}
-                                            <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                            <a href="{{ url_for('book.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
                                         {% else %}
                                             {{ item.title or 'Book removed' }}
                                         {% endif %}
@@ -169,7 +169,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="6" class="text-center text-muted" style="padding: 2rem;">
-                                    No downloads yet. <a href="{{ url_for('main.books') }}">Browse books</a>!
+                                    No downloads yet. <a href="{{ url_for('book.books') }}">Browse books</a>!
                                 </td>
                             </tr>
                         {% endif %}

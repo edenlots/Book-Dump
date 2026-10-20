@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Admin Login - Book Dumps</title>
 </head>
 <body>
@@ -33,7 +33,7 @@
         <p>
           <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">Admin Dashboard</a>
           <a href="{{ url_for('admin.admin_books') }}" class="btn btn-outline">All Books</a>
-          <a href="{{ url_for('main.logout') }}" class="btn btn-outline">Logout</a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-outline">Logout</a>
         </p>
       </section>
     {% else %}

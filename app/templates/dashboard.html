@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Dashboard - Book Dumps</title>
 </head>
 <body>
@@ -25,12 +25,12 @@
         <h1>📚 Welcome to Book Dumps Dashboard</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books List</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search Books</a></li>
+                <li><a href="{{ url_for('book.upload') }}">Upload Book</a></li>
+                <li><a href="{{ url_for('book.bookshelf') }}">My Bookshelf</a></li>
+                <li><a href="{{ url_for('book.books') }}">All Books List</a></li>
+                <li><a href="{{ url_for('book.search') }}">Search Books</a></li>
                 <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -80,11 +80,11 @@
                         <h2>🔍 Search Books</h2>
                     </div>
                     <div class="card-body dashboard-search-body">
-                        <form action="{{ url_for('main.search') }}" method="get" class="form-group">
+                        <form action="{{ url_for('book.search') }}" method="get" class="form-group">
                             <input type="text" name="q" value="{{ query or '' }}" placeholder="Search books..." class="mb-2" />
                             <button type="submit" class="btn btn-primary btn-block">Search</button>
                         </form>
-                        <p class="text-center mt-2"><a href="{{ url_for('main.books') }}">Browse All Books →</a></p>
+                        <p class="text-center mt-2"><a href="{{ url_for('book.books') }}">Browse All Books →</a></p>
                     </div>
                 </div>
             </div>
@@ -127,13 +127,13 @@
             <h2>Quick Actions</h2>
             <div class="row gap-2">
                 <div class="col-33">
-                    <a href="{{ url_for('main.upload') }}" class="btn btn-secondary btn-block">📤 Upload Book</a>
+                    <a href="{{ url_for('book.upload') }}" class="btn btn-secondary btn-block">📤 Upload Book</a>
                 </div>
                 <div class="col-33">
-                    <a href="{{ url_for('main.books') }}" class="btn btn-secondary btn-block">📚 All Books</a>
+                    <a href="{{ url_for('book.books') }}" class="btn btn-secondary btn-block">📚 All Books</a>
                 </div>
                 <div class="col-33">
-                    <a href="{{ url_for('main.search') }}" class="btn btn-secondary btn-block">🔎 Search Books</a>
+                    <a href="{{ url_for('book.search') }}" class="btn btn-secondary btn-block">🔎 Search Books</a>
                 </div>
             </div>
         </div>
@@ -159,7 +159,7 @@
                         <tbody id="booksBody">
                             {% for book in books %}
                             <tr>
-                                <td><a href="{{ url_for('main.bookview', book_id=book.id) }}"><strong>{{ book.title }}</strong></a></td>
+                                <td><a href="{{ url_for('book.bookview', book_id=book.id) }}"><strong>{{ book.title }}</strong></a></td>
                                 <td>{{ book.author }}</td>
                                 <td>{{ book.year }}</td>
                                 <td><span class="badge badge-primary">{{ book.genre }}</span></td>
@@ -168,7 +168,7 @@
                                     {{ (book.overview or '')[:50] }}{% if (book.overview or '')|length > 50 %}...{% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
+                                    <a href="{{ url_for('book.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -187,7 +187,7 @@
             {% else %}
                 <div class="card">
                     <p class="text-center text-muted" style="padding: 2rem;">
-                        📭 No books in your bookshelf yet. <a href="{{ url_for('main.upload') }}">Upload your first book</a>!
+                        📭 No books in your bookshelf yet. <a href="{{ url_for('book.upload') }}">Upload your first book</a>!
                     </p>
                 </div>
             {% endif %}

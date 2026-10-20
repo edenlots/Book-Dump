@@ -21,12 +21,12 @@
         <h1>🔍 Search Books</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
-                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('book.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('book.bookshelf') }}">My Bookshelf</a></li>
+                <li><a href="{{ url_for('book.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('book.upload') }}">Upload</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -38,7 +38,7 @@
                 <p class="text-muted">Search by keyword, or narrow results with specific fields.</p>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('main.search') }}" method="get">
+                <form action="{{ url_for('book.search') }}" method="get">
                     <div class="form-group">
                         <label for="query">Keyword</label>
                         <input
@@ -81,7 +81,7 @@
                     <div class="search-actions">
                         <button type="submit" class="btn btn-primary">Search</button>
                         {% if search_performed %}
-                            <a href="{{ url_for('main.search') }}" class="btn btn-secondary">Clear search</a>
+                            <a href="{{ url_for('book.search') }}" class="btn btn-secondary">Clear search</a>
                         {% endif %}
                     </div>
                 </form>
@@ -108,12 +108,12 @@
                         <tbody>
                             {% for book in results %}
                             <tr>
-                                <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}"><strong>{{ book[1] }}</strong></a></td>
+                                <td><a href="{{ url_for('book.bookview', book_id=book[0]) }}"><strong>{{ book[1] }}</strong></a></td>
                                 <td>{{ book[2] }}</td>
                                 <td>{{ book[3] or '—' }}</td>
                                 <td><span class="badge badge-primary">{{ book[4] or '—' }}</span></td>
                                 <td>{{ book[5] or '—' }}</td>
-                                <td><a href="{{ url_for('main.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a></td>
+                                <td><a href="{{ url_for('book.bookview', book_id=book[0]) }}" class="btn btn-small btn-outline">View</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

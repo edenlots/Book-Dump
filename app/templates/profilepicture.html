@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Upload Profile Picture - Book Dumps</title>
     <style>
         .upload-container {
@@ -100,9 +100,10 @@
         <h1>📷 Profile Picture</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
-                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
+                <li><a href="{{ url_for('book.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('book.bookshelf') }}">My Bookshelf</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Back to Profile</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>All Books - Book Dumps</title>
 </head>
 <body>
@@ -25,12 +25,12 @@
         <h1>📚 All Books</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
-                <li><a href="{{ url_for('main.bookshelf') }}">My Bookshelf</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload Book</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search</a></li>
+                <li><a href="{{ url_for('book.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('book.bookshelf') }}">My Bookshelf</a></li>
+                <li><a href="{{ url_for('book.upload') }}">Upload Book</a></li>
+                <li><a href="{{ url_for('book.search') }}">Search</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('main.index') }}">Logout</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -42,12 +42,12 @@
                 <h2>🔍 Search Books</h2>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('main.search') }}" method="get" class="search-bar">
+                <form action="{{ url_for('book.search') }}" method="get" class="search-bar">
                     <input type="text" name="q" value="{{ query or '' }}" placeholder="Search books..." />
                     <button type="submit" class="btn btn-primary">Search</button>
                 </form>
                 <p class="text-center text-muted mt-2">
-                    <a href="{{ url_for('main.search') }}">More search filters →</a>
+                    <a href="{{ url_for('book.search') }}">More search filters →</a>
                 </p>
             </div>
         </div>
@@ -73,7 +73,7 @@
                         <tbody id="booksBody">
                             {% for book in books %}
                             <tr>
-                                <td><a href="{{ url_for('main.bookview', book_id=book.id) }}"><strong>{{ book.title }}</strong></a></td>
+                                <td><a href="{{ url_for('book.bookview', book_id=book.id) }}"><strong>{{ book.title }}</strong></a></td>
                                 <td>{{ book.author }}</td>
                                 <td>{{ book.year }}</td>
                                 <td><span class="badge badge-primary">{{ book.genre }}</span></td>
@@ -82,7 +82,7 @@
                                     {{ book.overview[:50] }}{% if book.overview|length > 50 %}...{% endif %}
                                 </td>
                                 <td>
-                                    <a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
+                                    <a href="{{ url_for('book.book_file', book_id=book.id) }}" target="_blank" class="btn btn-small btn-outline">View PDF</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -101,7 +101,7 @@
             {% else %}
                 <div class="card">
                     <p class="text-center text-muted" style="padding: 2rem;">
-                        📭 No books available yet. <a href="{{ url_for('main.upload') }}">Be the first to upload!</a>
+                        📭 No books available yet. <a href="{{ url_for('book.upload') }}">Be the first to upload!</a>
                     </p>
                 </div>
             {% endif %}

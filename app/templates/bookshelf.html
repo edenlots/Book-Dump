@@ -11,12 +11,12 @@
         <h1>📚 My Bookshelf</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('main.dashboard') }}">← Dashboard</a></li>
-                <li><a href="{{ url_for('main.books') }}">All Books</a></li>
-                <li><a href="{{ url_for('main.search') }}">Search</a></li>
-                <li><a href="{{ url_for('main.upload') }}">Upload</a></li>
+                <li><a href="{{ url_for('book.dashboard') }}">← Dashboard</a></li>
+                <li><a href="{{ url_for('book.books') }}">All Books</a></li>
+                <li><a href="{{ url_for('book.search') }}">Search</a></li>
+                <li><a href="{{ url_for('book.upload') }}">Upload</a></li>
                 <li><a href="{{ url_for('main.profile') }}">Profile</a></li>
-                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -40,12 +40,12 @@
                                     <tbody>
                                         {% for book in uploaded_books %}
                                         <tr>
-                                            <td><a href="{{ url_for('main.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
+                                            <td><a href="{{ url_for('book.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
                                             <td>{{ book.author }}</td>
                                             <td>{{ book.year or '—' }}</td>
                                             <td>{{ book.genre or '—' }}</td>
                                             <td>{{ book.language or '—' }}</td>
-                                            <td><a href="{{ url_for('main.book_file', book_id=book.id) }}" target="_blank" rel="noopener">View PDF</a></td>
+                                            <td><a href="{{ url_for('book.book_file', book_id=book.id) }}" target="_blank" rel="noopener">View PDF</a></td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -59,7 +59,7 @@
                                 <button type="button" class="btn-small" data-last>Last ⏭</button>
                             </div>
                         {% else %}
-                            <p class="text-muted">You haven't uploaded any books yet. <a href="{{ url_for('main.upload') }}">Upload a book</a>.</p>
+                            <p class="text-muted">You haven't uploaded any books yet. <a href="{{ url_for('book.upload') }}">Upload a book</a>.</p>
                         {% endif %}
                     </section>
 
@@ -74,13 +74,13 @@
                                     <tbody>
                                         {% for book in favorite_books %}
                                         <tr>
-                                            <td><a href="{{ url_for('main.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
+                                            <td><a href="{{ url_for('book.bookview', book_id=book.id) }}">{{ book.title }}</a></td>
                                             <td>{{ book.author }}</td>
                                             <td>{{ book.year or '—' }}</td>
                                             <td>{{ book.genre or '—' }}</td>
                                             <td>{{ book.language or '—' }}</td>
                                             <td>
-                                                <form action="{{ url_for('main.favorite_book', book_id=book.id) }}" method="post">
+                                                <form action="{{ url_for('book.favorite_book', book_id=book.id) }}" method="post">
                                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                                     <input type="hidden" name="action" value="remove">
                                                     <input type="hidden" name="return_to" value="bookshelf">
@@ -100,7 +100,7 @@
                                 <button type="button" class="btn-small" data-last>Last ⏭</button>
                             </div>
                         {% else %}
-                            <p class="text-muted">You haven't saved any books yet. <a href="{{ url_for('main.books') }}">Browse books</a> and save one from its details page.</p>
+                            <p class="text-muted">You haven't saved any books yet. <a href="{{ url_for('book.books') }}">Browse books</a> and save one from its details page.</p>
                         {% endif %}
                     </section>
                 </div>

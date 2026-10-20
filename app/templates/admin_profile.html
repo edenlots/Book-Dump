@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Admin Profile - Book Dumps</title>
 </head>
 <body>
@@ -24,7 +24,7 @@
                 <li><a href="{{ url_for('admin.admin_dashboard') }}">Admin Dashboard</a></li>
                 <li><a href="{{ url_for('admin.admin_books') }}">All Books &amp; Files</a></li>
                 <li><a href="{{ url_for('admin.admin_users') }}">Manage Users</a></li>
-                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
             </ul>
         </nav>
     </header>
@@ -49,7 +49,7 @@
                             <tr>
                                 <td>
                                     {% if item.book_id %}
-                                        <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                        <a href="{{ url_for('book.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
                                     {% else %}
                                         {{ item.title or 'Book removed' }}
                                     {% endif %}
@@ -77,7 +77,7 @@
                             <tr>
                                 <td>
                                     {% if item.book_id %}
-                                        <a href="{{ url_for('main.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
+                                        <a href="{{ url_for('book.bookview', book_id=item.book_id) }}">{{ item.title }}</a>
                                     {% else %}
                                         {{ item.title or 'Book removed' }}
                                     {% endif %}
